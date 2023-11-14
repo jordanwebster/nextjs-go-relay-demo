@@ -7,7 +7,8 @@
     "build": "relay-compiler --validate && next build",
     "start": "next start",
     "lint": "next lint",
-    "relay": "relay-compiler --watch"
+    "relay": "relay-compiler --watch",
+    "schema": "get-graphql-schema http://localhost:3000/api/graphql > src/schema.graphql"
   },
   "dependencies": {
     "next": "14.0.2",
@@ -25,6 +26,7 @@
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.2",
+    "get-graphql-schema": "^2.1.2",
     "postcss": "^8",
     "relay-compiler": "^16.0.0",
     "tailwindcss": "^3.3.0",
