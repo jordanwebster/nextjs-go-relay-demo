@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
-	"todo/go/ent"
-	"todo/go/graphql"
+	"task/go/ent"
+	"task/go/graphql"
 
 	"entgo.io/ent/dialect"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -24,7 +24,7 @@ func main() {
 	// Configure the server and start listening on :8081.
 	srv := handler.NewDefaultServer(graphql.NewSchema(client))
 	http.Handle("/",
-		playground.Handler("Todo", "/query"),
+		playground.Handler("Task", "/query"),
 	)
 	http.Handle("/query", srv)
 	log.Println("listening on :8081")

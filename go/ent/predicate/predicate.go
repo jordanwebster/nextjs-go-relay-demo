@@ -6,5 +6,5 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Todo is the predicate function for todo builders.
-type Todo func(*sql.Selector)
+// Task is the predicate function for task builders.
+type Task func(*sql.Selector)

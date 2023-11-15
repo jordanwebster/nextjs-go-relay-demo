@@ -7,66 +7,66 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
-	"todo/go/ent/predicate"
-	"todo/go/ent/todo"
+	"task/go/ent/predicate"
+	"task/go/ent/task"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// TodoQuery is the builder for querying Todo entities.
-type TodoQuery struct {
+// TaskQuery is the builder for querying Task entities.
+type TaskQuery struct {
 	config
 	ctx               *QueryContext
-	order             []todo.OrderOption
+	order             []task.OrderOption
 	inters            []Interceptor
-	predicates        []predicate.Todo
-	withParent        *TodoQuery
-	withChildren      *TodoQuery
+	predicates        []predicate.Task
+	withParent        *TaskQuery
+	withChildren      *TaskQuery
 	withFKs           bool
 	modifiers         []func(*sql.Selector)
-	loadTotal         []func(context.Context, []*Todo) error
-	withNamedChildren map[string]*TodoQuery
+	loadTotal         []func(context.Context, []*Task) error
+	withNamedChildren map[string]*TaskQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the TodoQuery builder.
-func (tq *TodoQuery) Where(ps ...predicate.Todo) *TodoQuery {
+// Where adds a new predicate for the TaskQuery builder.
+func (tq *TaskQuery) Where(ps ...predicate.Task) *TaskQuery {
 	tq.predicates = append(tq.predicates, ps...)
 	return tq
 }
 
 // Limit the number of records to be returned by this query.
-func (tq *TodoQuery) Limit(limit int) *TodoQuery {
+func (tq *TaskQuery) Limit(limit int) *TaskQuery {
 	tq.ctx.Limit = &limit
 	return tq
 }
 
 // Offset to start from.
-func (tq *TodoQuery) Offset(offset int) *TodoQuery {
+func (tq *TaskQuery) Offset(offset int) *TaskQuery {
 	tq.ctx.Offset = &offset
 	return tq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (tq *TodoQuery) Unique(unique bool) *TodoQuery {
+func (tq *TaskQuery) Unique(unique bool) *TaskQuery {
 	tq.ctx.Unique = &unique
 	return tq
 }
 
 // Order specifies how the records should be ordered.
-func (tq *TodoQuery) Order(o ...todo.OrderOption) *TodoQuery {
+func (tq *TaskQuery) Order(o ...task.OrderOption) *TaskQuery {
 	tq.order = append(tq.order, o...)
 	return tq
 }
 
 // QueryParent chains the current query on the "parent" edge.
-func (tq *TodoQuery) QueryParent() *TodoQuery {
-	query := (&TodoClient{config: tq.config}).Query()
+func (tq *TaskQuery) QueryParent() *TaskQuery {
+	query := (&TaskClient{config: tq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -76,9 +76,9 @@ func (tq *TodoQuery) QueryParent() *TodoQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(todo.Table, todo.FieldID, selector),
-			sqlgraph.To(todo.Table, todo.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, todo.ParentTable, todo.ParentColumn),
+			sqlgraph.From(task.Table, task.FieldID, selector),
+			sqlgraph.To(task.Table, task.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, task.ParentTable, task.ParentColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -87,8 +87,8 @@ func (tq *TodoQuery) QueryParent() *TodoQuery {
 }
 
 // QueryChildren chains the current query on the "children" edge.
-func (tq *TodoQuery) QueryChildren() *TodoQuery {
-	query := (&TodoClient{config: tq.config}).Query()
+func (tq *TaskQuery) QueryChildren() *TaskQuery {
+	query := (&TaskClient{config: tq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -98,9 +98,9 @@ func (tq *TodoQuery) QueryChildren() *TodoQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(todo.Table, todo.FieldID, selector),
-			sqlgraph.To(todo.Table, todo.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, todo.ChildrenTable, todo.ChildrenColumn),
+			sqlgraph.From(task.Table, task.FieldID, selector),
+			sqlgraph.To(task.Table, task.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, task.ChildrenTable, task.ChildrenColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -108,21 +108,21 @@ func (tq *TodoQuery) QueryChildren() *TodoQuery {
 	return query
 }
 
-// First returns the first Todo entity from the query.
-// Returns a *NotFoundError when no Todo was found.
-func (tq *TodoQuery) First(ctx context.Context) (*Todo, error) {
+// First returns the first Task entity from the query.
+// Returns a *NotFoundError when no Task was found.
+func (tq *TaskQuery) First(ctx context.Context) (*Task, error) {
 	nodes, err := tq.Limit(1).All(setContextOp(ctx, tq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{todo.Label}
+		return nil, &NotFoundError{task.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (tq *TodoQuery) FirstX(ctx context.Context) *Todo {
+func (tq *TaskQuery) FirstX(ctx context.Context) *Task {
 	node, err := tq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -130,22 +130,22 @@ func (tq *TodoQuery) FirstX(ctx context.Context) *Todo {
 	return node
 }
 
-// FirstID returns the first Todo ID from the query.
-// Returns a *NotFoundError when no Todo ID was found.
-func (tq *TodoQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first Task ID from the query.
+// Returns a *NotFoundError when no Task ID was found.
+func (tq *TaskQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = tq.Limit(1).IDs(setContextOp(ctx, tq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{todo.Label}
+		err = &NotFoundError{task.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (tq *TodoQuery) FirstIDX(ctx context.Context) int {
+func (tq *TaskQuery) FirstIDX(ctx context.Context) int {
 	id, err := tq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -153,10 +153,10 @@ func (tq *TodoQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single Todo entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Todo entity is found.
-// Returns a *NotFoundError when no Todo entities are found.
-func (tq *TodoQuery) Only(ctx context.Context) (*Todo, error) {
+// Only returns a single Task entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Task entity is found.
+// Returns a *NotFoundError when no Task entities are found.
+func (tq *TaskQuery) Only(ctx context.Context) (*Task, error) {
 	nodes, err := tq.Limit(2).All(setContextOp(ctx, tq.ctx, "Only"))
 	if err != nil {
 		return nil, err
@@ -165,14 +165,14 @@ func (tq *TodoQuery) Only(ctx context.Context) (*Todo, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{todo.Label}
+		return nil, &NotFoundError{task.Label}
 	default:
-		return nil, &NotSingularError{todo.Label}
+		return nil, &NotSingularError{task.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (tq *TodoQuery) OnlyX(ctx context.Context) *Todo {
+func (tq *TaskQuery) OnlyX(ctx context.Context) *Task {
 	node, err := tq.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -180,10 +180,10 @@ func (tq *TodoQuery) OnlyX(ctx context.Context) *Todo {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Todo ID in the query.
-// Returns a *NotSingularError when more than one Todo ID is found.
+// OnlyID is like Only, but returns the only Task ID in the query.
+// Returns a *NotSingularError when more than one Task ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (tq *TodoQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (tq *TaskQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = tq.Limit(2).IDs(setContextOp(ctx, tq.ctx, "OnlyID")); err != nil {
 		return
@@ -192,15 +192,15 @@ func (tq *TodoQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{todo.Label}
+		err = &NotFoundError{task.Label}
 	default:
-		err = &NotSingularError{todo.Label}
+		err = &NotSingularError{task.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (tq *TodoQuery) OnlyIDX(ctx context.Context) int {
+func (tq *TaskQuery) OnlyIDX(ctx context.Context) int {
 	id, err := tq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -208,18 +208,18 @@ func (tq *TodoQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of Todos.
-func (tq *TodoQuery) All(ctx context.Context) ([]*Todo, error) {
+// All executes the query and returns a list of Tasks.
+func (tq *TaskQuery) All(ctx context.Context) ([]*Task, error) {
 	ctx = setContextOp(ctx, tq.ctx, "All")
 	if err := tq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Todo, *TodoQuery]()
-	return withInterceptors[[]*Todo](ctx, tq, qr, tq.inters)
+	qr := querierAll[[]*Task, *TaskQuery]()
+	return withInterceptors[[]*Task](ctx, tq, qr, tq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (tq *TodoQuery) AllX(ctx context.Context) []*Todo {
+func (tq *TaskQuery) AllX(ctx context.Context) []*Task {
 	nodes, err := tq.All(ctx)
 	if err != nil {
 		panic(err)
@@ -227,20 +227,20 @@ func (tq *TodoQuery) AllX(ctx context.Context) []*Todo {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Todo IDs.
-func (tq *TodoQuery) IDs(ctx context.Context) (ids []int, err error) {
+// IDs executes the query and returns a list of Task IDs.
+func (tq *TaskQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if tq.ctx.Unique == nil && tq.path != nil {
 		tq.Unique(true)
 	}
 	ctx = setContextOp(ctx, tq.ctx, "IDs")
-	if err = tq.Select(todo.FieldID).Scan(ctx, &ids); err != nil {
+	if err = tq.Select(task.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (tq *TodoQuery) IDsX(ctx context.Context) []int {
+func (tq *TaskQuery) IDsX(ctx context.Context) []int {
 	ids, err := tq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -249,16 +249,16 @@ func (tq *TodoQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (tq *TodoQuery) Count(ctx context.Context) (int, error) {
+func (tq *TaskQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, tq.ctx, "Count")
 	if err := tq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, tq, querierCount[*TodoQuery](), tq.inters)
+	return withInterceptors[int](ctx, tq, querierCount[*TaskQuery](), tq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (tq *TodoQuery) CountX(ctx context.Context) int {
+func (tq *TaskQuery) CountX(ctx context.Context) int {
 	count, err := tq.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -267,7 +267,7 @@ func (tq *TodoQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (tq *TodoQuery) Exist(ctx context.Context) (bool, error) {
+func (tq *TaskQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, tq.ctx, "Exist")
 	switch _, err := tq.FirstID(ctx); {
 	case IsNotFound(err):
@@ -280,7 +280,7 @@ func (tq *TodoQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (tq *TodoQuery) ExistX(ctx context.Context) bool {
+func (tq *TaskQuery) ExistX(ctx context.Context) bool {
 	exist, err := tq.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -288,18 +288,18 @@ func (tq *TodoQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the TodoQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the TaskQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (tq *TodoQuery) Clone() *TodoQuery {
+func (tq *TaskQuery) Clone() *TaskQuery {
 	if tq == nil {
 		return nil
 	}
-	return &TodoQuery{
+	return &TaskQuery{
 		config:       tq.config,
 		ctx:          tq.ctx.Clone(),
-		order:        append([]todo.OrderOption{}, tq.order...),
+		order:        append([]task.OrderOption{}, tq.order...),
 		inters:       append([]Interceptor{}, tq.inters...),
-		predicates:   append([]predicate.Todo{}, tq.predicates...),
+		predicates:   append([]predicate.Task{}, tq.predicates...),
 		withParent:   tq.withParent.Clone(),
 		withChildren: tq.withChildren.Clone(),
 		// clone intermediate query.
@@ -310,8 +310,8 @@ func (tq *TodoQuery) Clone() *TodoQuery {
 
 // WithParent tells the query-builder to eager-load the nodes that are connected to
 // the "parent" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TodoQuery) WithParent(opts ...func(*TodoQuery)) *TodoQuery {
-	query := (&TodoClient{config: tq.config}).Query()
+func (tq *TaskQuery) WithParent(opts ...func(*TaskQuery)) *TaskQuery {
+	query := (&TaskClient{config: tq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -321,8 +321,8 @@ func (tq *TodoQuery) WithParent(opts ...func(*TodoQuery)) *TodoQuery {
 
 // WithChildren tells the query-builder to eager-load the nodes that are connected to
 // the "children" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TodoQuery) WithChildren(opts ...func(*TodoQuery)) *TodoQuery {
-	query := (&TodoClient{config: tq.config}).Query()
+func (tq *TaskQuery) WithChildren(opts ...func(*TaskQuery)) *TaskQuery {
+	query := (&TaskClient{config: tq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -340,15 +340,15 @@ func (tq *TodoQuery) WithChildren(opts ...func(*TodoQuery)) *TodoQuery {
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Todo.Query().
-//		GroupBy(todo.FieldText).
+//	client.Task.Query().
+//		GroupBy(task.FieldText).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (tq *TodoQuery) GroupBy(field string, fields ...string) *TodoGroupBy {
+func (tq *TaskQuery) GroupBy(field string, fields ...string) *TaskGroupBy {
 	tq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &TodoGroupBy{build: tq}
+	grbuild := &TaskGroupBy{build: tq}
 	grbuild.flds = &tq.ctx.Fields
-	grbuild.label = todo.Label
+	grbuild.label = task.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -362,23 +362,23 @@ func (tq *TodoQuery) GroupBy(field string, fields ...string) *TodoGroupBy {
 //		Text string `json:"text,omitempty"`
 //	}
 //
-//	client.Todo.Query().
-//		Select(todo.FieldText).
+//	client.Task.Query().
+//		Select(task.FieldText).
 //		Scan(ctx, &v)
-func (tq *TodoQuery) Select(fields ...string) *TodoSelect {
+func (tq *TaskQuery) Select(fields ...string) *TaskSelect {
 	tq.ctx.Fields = append(tq.ctx.Fields, fields...)
-	sbuild := &TodoSelect{TodoQuery: tq}
-	sbuild.label = todo.Label
+	sbuild := &TaskSelect{TaskQuery: tq}
+	sbuild.label = task.Label
 	sbuild.flds, sbuild.scan = &tq.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a TodoSelect configured with the given aggregations.
-func (tq *TodoQuery) Aggregate(fns ...AggregateFunc) *TodoSelect {
+// Aggregate returns a TaskSelect configured with the given aggregations.
+func (tq *TaskQuery) Aggregate(fns ...AggregateFunc) *TaskSelect {
 	return tq.Select().Aggregate(fns...)
 }
 
-func (tq *TodoQuery) prepareQuery(ctx context.Context) error {
+func (tq *TaskQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range tq.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -390,7 +390,7 @@ func (tq *TodoQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range tq.ctx.Fields {
-		if !todo.ValidColumn(f) {
+		if !task.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -404,9 +404,9 @@ func (tq *TodoQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (tq *TodoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Todo, error) {
+func (tq *TaskQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Task, error) {
 	var (
-		nodes       = []*Todo{}
+		nodes       = []*Task{}
 		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
 		loadedTypes = [2]bool{
@@ -418,13 +418,13 @@ func (tq *TodoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Todo, e
 		withFKs = true
 	}
 	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, todo.ForeignKeys...)
+		_spec.Node.Columns = append(_spec.Node.Columns, task.ForeignKeys...)
 	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Todo).scanValues(nil, columns)
+		return (*Task).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Todo{config: tq.config}
+		node := &Task{config: tq.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -443,21 +443,21 @@ func (tq *TodoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Todo, e
 	}
 	if query := tq.withParent; query != nil {
 		if err := tq.loadParent(ctx, query, nodes, nil,
-			func(n *Todo, e *Todo) { n.Edges.Parent = e }); err != nil {
+			func(n *Task, e *Task) { n.Edges.Parent = e }); err != nil {
 			return nil, err
 		}
 	}
 	if query := tq.withChildren; query != nil {
 		if err := tq.loadChildren(ctx, query, nodes,
-			func(n *Todo) { n.Edges.Children = []*Todo{} },
-			func(n *Todo, e *Todo) { n.Edges.Children = append(n.Edges.Children, e) }); err != nil {
+			func(n *Task) { n.Edges.Children = []*Task{} },
+			func(n *Task, e *Task) { n.Edges.Children = append(n.Edges.Children, e) }); err != nil {
 			return nil, err
 		}
 	}
 	for name, query := range tq.withNamedChildren {
 		if err := tq.loadChildren(ctx, query, nodes,
-			func(n *Todo) { n.appendNamedChildren(name) },
-			func(n *Todo, e *Todo) { n.appendNamedChildren(name, e) }); err != nil {
+			func(n *Task) { n.appendNamedChildren(name) },
+			func(n *Task, e *Task) { n.appendNamedChildren(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -469,14 +469,14 @@ func (tq *TodoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Todo, e
 	return nodes, nil
 }
 
-func (tq *TodoQuery) loadParent(ctx context.Context, query *TodoQuery, nodes []*Todo, init func(*Todo), assign func(*Todo, *Todo)) error {
+func (tq *TaskQuery) loadParent(ctx context.Context, query *TaskQuery, nodes []*Task, init func(*Task), assign func(*Task, *Task)) error {
 	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Todo)
+	nodeids := make(map[int][]*Task)
 	for i := range nodes {
-		if nodes[i].todo_children == nil {
+		if nodes[i].task_children == nil {
 			continue
 		}
-		fk := *nodes[i].todo_children
+		fk := *nodes[i].task_children
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -485,7 +485,7 @@ func (tq *TodoQuery) loadParent(ctx context.Context, query *TodoQuery, nodes []*
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(todo.IDIn(ids...))
+	query.Where(task.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -493,7 +493,7 @@ func (tq *TodoQuery) loadParent(ctx context.Context, query *TodoQuery, nodes []*
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "todo_children" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "task_children" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -501,9 +501,9 @@ func (tq *TodoQuery) loadParent(ctx context.Context, query *TodoQuery, nodes []*
 	}
 	return nil
 }
-func (tq *TodoQuery) loadChildren(ctx context.Context, query *TodoQuery, nodes []*Todo, init func(*Todo), assign func(*Todo, *Todo)) error {
+func (tq *TaskQuery) loadChildren(ctx context.Context, query *TaskQuery, nodes []*Task, init func(*Task), assign func(*Task, *Task)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Todo)
+	nodeids := make(map[int]*Task)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -512,28 +512,28 @@ func (tq *TodoQuery) loadChildren(ctx context.Context, query *TodoQuery, nodes [
 		}
 	}
 	query.withFKs = true
-	query.Where(predicate.Todo(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(todo.ChildrenColumn), fks...))
+	query.Where(predicate.Task(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(task.ChildrenColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.todo_children
+		fk := n.task_children
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "todo_children" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "task_children" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "todo_children" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "task_children" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
 	return nil
 }
 
-func (tq *TodoQuery) sqlCount(ctx context.Context) (int, error) {
+func (tq *TaskQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := tq.querySpec()
 	if len(tq.modifiers) > 0 {
 		_spec.Modifiers = tq.modifiers
@@ -545,8 +545,8 @@ func (tq *TodoQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, tq.driver, _spec)
 }
 
-func (tq *TodoQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(todo.Table, todo.Columns, sqlgraph.NewFieldSpec(todo.FieldID, field.TypeInt))
+func (tq *TaskQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
 	_spec.From = tq.sql
 	if unique := tq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -555,9 +555,9 @@ func (tq *TodoQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := tq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, todo.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, task.FieldID)
 		for i := range fields {
-			if fields[i] != todo.FieldID {
+			if fields[i] != task.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -585,12 +585,12 @@ func (tq *TodoQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (tq *TodoQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (tq *TaskQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(tq.driver.Dialect())
-	t1 := builder.Table(todo.Table)
+	t1 := builder.Table(task.Table)
 	columns := tq.ctx.Fields
 	if len(columns) == 0 {
-		columns = todo.Columns
+		columns = task.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if tq.sql != nil {
@@ -619,40 +619,40 @@ func (tq *TodoQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // WithNamedChildren tells the query-builder to eager-load the nodes that are connected to the "children"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (tq *TodoQuery) WithNamedChildren(name string, opts ...func(*TodoQuery)) *TodoQuery {
-	query := (&TodoClient{config: tq.config}).Query()
+func (tq *TaskQuery) WithNamedChildren(name string, opts ...func(*TaskQuery)) *TaskQuery {
+	query := (&TaskClient{config: tq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
 	if tq.withNamedChildren == nil {
-		tq.withNamedChildren = make(map[string]*TodoQuery)
+		tq.withNamedChildren = make(map[string]*TaskQuery)
 	}
 	tq.withNamedChildren[name] = query
 	return tq
 }
 
-// TodoGroupBy is the group-by builder for Todo entities.
-type TodoGroupBy struct {
+// TaskGroupBy is the group-by builder for Task entities.
+type TaskGroupBy struct {
 	selector
-	build *TodoQuery
+	build *TaskQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (tgb *TodoGroupBy) Aggregate(fns ...AggregateFunc) *TodoGroupBy {
+func (tgb *TaskGroupBy) Aggregate(fns ...AggregateFunc) *TaskGroupBy {
 	tgb.fns = append(tgb.fns, fns...)
 	return tgb
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (tgb *TodoGroupBy) Scan(ctx context.Context, v any) error {
+func (tgb *TaskGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, tgb.build.ctx, "GroupBy")
 	if err := tgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TodoQuery, *TodoGroupBy](ctx, tgb.build, tgb, tgb.build.inters, v)
+	return scanWithInterceptors[*TaskQuery, *TaskGroupBy](ctx, tgb.build, tgb, tgb.build.inters, v)
 }
 
-func (tgb *TodoGroupBy) sqlScan(ctx context.Context, root *TodoQuery, v any) error {
+func (tgb *TaskGroupBy) sqlScan(ctx context.Context, root *TaskQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(tgb.fns))
 	for _, fn := range tgb.fns {
@@ -679,28 +679,28 @@ func (tgb *TodoGroupBy) sqlScan(ctx context.Context, root *TodoQuery, v any) err
 	return sql.ScanSlice(rows, v)
 }
 
-// TodoSelect is the builder for selecting fields of Todo entities.
-type TodoSelect struct {
-	*TodoQuery
+// TaskSelect is the builder for selecting fields of Task entities.
+type TaskSelect struct {
+	*TaskQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (ts *TodoSelect) Aggregate(fns ...AggregateFunc) *TodoSelect {
+func (ts *TaskSelect) Aggregate(fns ...AggregateFunc) *TaskSelect {
 	ts.fns = append(ts.fns, fns...)
 	return ts
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ts *TodoSelect) Scan(ctx context.Context, v any) error {
+func (ts *TaskSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, ts.ctx, "Select")
 	if err := ts.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TodoQuery, *TodoSelect](ctx, ts.TodoQuery, ts, ts.inters, v)
+	return scanWithInterceptors[*TaskQuery, *TaskSelect](ctx, ts.TaskQuery, ts, ts.inters, v)
 }
 
-func (ts *TodoSelect) sqlScan(ctx context.Context, root *TodoQuery, v any) error {
+func (ts *TaskSelect) sqlScan(ctx context.Context, root *TaskQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(ts.fns))
 	for _, fn := range ts.fns {

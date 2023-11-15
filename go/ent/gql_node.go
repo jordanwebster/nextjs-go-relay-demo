@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
-	"todo/go/ent/todo"
+	"task/go/ent/task"
 
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent/dialect"
@@ -23,10 +23,10 @@ type Noder interface {
 	IsNode()
 }
 
-var todoImplementors = []string{"Todo", "Node"}
+var taskImplementors = []string{"Task", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
-func (*Todo) IsNode() {}
+func (*Task) IsNode() {}
 
 var errNodeInvalidID = &NotFoundError{"node"}
 
@@ -86,10 +86,10 @@ func (c *Client) Noder(ctx context.Context, id int, opts ...NodeOption) (_ Noder
 
 func (c *Client) noder(ctx context.Context, table string, id int) (Noder, error) {
 	switch table {
-	case todo.Table:
-		query := c.Todo.Query().
-			Where(todo.ID(id))
-		query, err := query.CollectFields(ctx, todoImplementors...)
+	case task.Table:
+		query := c.Task.Query().
+			Where(task.ID(id))
+		query, err := query.CollectFields(ctx, taskImplementors...)
 		if err != nil {
 			return nil, err
 		}
@@ -171,10 +171,10 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 		idmap[id] = append(idmap[id], &noders[i])
 	}
 	switch table {
-	case todo.Table:
-		query := c.Todo.Query().
-			Where(todo.IDIn(ids...))
-		query, err := query.CollectFields(ctx, todoImplementors...)
+	case task.Table:
+		query := c.Task.Query().
+			Where(task.IDIn(ids...))
+		query, err := query.CollectFields(ctx, taskImplementors...)
 		if err != nil {
 			return nil, err
 		}

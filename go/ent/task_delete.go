@@ -4,34 +4,34 @@ package ent
 
 import (
 	"context"
-	"todo/go/ent/predicate"
-	"todo/go/ent/todo"
+	"task/go/ent/predicate"
+	"task/go/ent/task"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// TodoDelete is the builder for deleting a Todo entity.
-type TodoDelete struct {
+// TaskDelete is the builder for deleting a Task entity.
+type TaskDelete struct {
 	config
 	hooks    []Hook
-	mutation *TodoMutation
+	mutation *TaskMutation
 }
 
-// Where appends a list predicates to the TodoDelete builder.
-func (td *TodoDelete) Where(ps ...predicate.Todo) *TodoDelete {
+// Where appends a list predicates to the TaskDelete builder.
+func (td *TaskDelete) Where(ps ...predicate.Task) *TaskDelete {
 	td.mutation.Where(ps...)
 	return td
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (td *TodoDelete) Exec(ctx context.Context) (int, error) {
+func (td *TaskDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, td.sqlExec, td.mutation, td.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (td *TodoDelete) ExecX(ctx context.Context) int {
+func (td *TaskDelete) ExecX(ctx context.Context) int {
 	n, err := td.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (td *TodoDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (td *TodoDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(todo.Table, sqlgraph.NewFieldSpec(todo.FieldID, field.TypeInt))
+func (td *TaskDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(task.Table, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
 	if ps := td.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (td *TodoDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// TodoDeleteOne is the builder for deleting a single Todo entity.
-type TodoDeleteOne struct {
-	td *TodoDelete
+// TaskDeleteOne is the builder for deleting a single Task entity.
+type TaskDeleteOne struct {
+	td *TaskDelete
 }
 
-// Where appends a list predicates to the TodoDelete builder.
-func (tdo *TodoDeleteOne) Where(ps ...predicate.Todo) *TodoDeleteOne {
+// Where appends a list predicates to the TaskDelete builder.
+func (tdo *TaskDeleteOne) Where(ps ...predicate.Task) *TaskDeleteOne {
 	tdo.td.mutation.Where(ps...)
 	return tdo
 }
 
 // Exec executes the deletion query.
-func (tdo *TodoDeleteOne) Exec(ctx context.Context) error {
+func (tdo *TaskDeleteOne) Exec(ctx context.Context) error {
 	n, err := tdo.td.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{todo.Label}
+		return &NotFoundError{task.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tdo *TodoDeleteOne) ExecX(ctx context.Context) {
+func (tdo *TaskDeleteOne) ExecX(ctx context.Context) {
 	if err := tdo.Exec(ctx); err != nil {
 		panic(err)
 	}

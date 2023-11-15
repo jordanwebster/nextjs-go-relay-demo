@@ -10,13 +10,13 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// Todo holds the schema definition for the Todo entity.
-type Todo struct {
+// Task holds the schema definition for the Task entity.
+type Task struct {
 	ent.Schema
 }
 
-// Fields of the Todo.
-func (Todo) Fields() []ent.Field {
+// Fields of the Task.
+func (Task) Fields() []ent.Field {
     return []ent.Field{
         field.Text("text").
             NotEmpty().
@@ -46,10 +46,10 @@ func (Todo) Fields() []ent.Field {
     }
 }
 
-// Edges of the Todo.
-func (Todo) Edges() []ent.Edge {
+// Edges of the Task.
+func (Task) Edges() []ent.Edge {
     return []ent.Edge{
-        edge.To("children", Todo.Type).
+        edge.To("children", Task.Type).
             Annotations(
                 entgql.RelayConnection(),
                 entgql.OrderField("CHILDREN_COUNT"),
@@ -59,7 +59,7 @@ func (Todo) Edges() []ent.Edge {
     }
 }
 
-func (Todo) Annotations() []schema.Annotation {
+func (Task) Annotations() []schema.Annotation {
     return []schema.Annotation{
         entgql.QueryField(),
         entgql.MultiOrder(),

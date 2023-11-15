@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"task/go/ent"
+	"task/go/ent/task"
 	"time"
-	"todo/go/ent"
-	"todo/go/ent/todo"
 
 	"entgo.io/contrib/entgql"
 	"github.com/99designs/gqlgen/graphql"
@@ -24,7 +24,7 @@ import (
 type QueryResolver interface {
 	Node(ctx context.Context, id int) (ent.Noder, error)
 	Nodes(ctx context.Context, ids []int) ([]ent.Noder, error)
-	Todos(ctx context.Context, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, orderBy []*ent.TodoOrder) (*ent.TodoConnection, error)
+	Tasks(ctx context.Context, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, orderBy []*ent.TaskOrder) (*ent.TaskConnection, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -76,7 +76,7 @@ func (ec *executionContext) field_Query_nodes_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_todos_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_tasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *entgql.Cursor[int]
@@ -115,10 +115,10 @@ func (ec *executionContext) field_Query_todos_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["last"] = arg3
-	var arg4 []*ent.TodoOrder
+	var arg4 []*ent.TaskOrder
 	if tmp, ok := rawArgs["orderBy"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg4, err = ec.unmarshalOTodoOrder2ᚕᚖtodoᚋgoᚋentᚐTodoOrderᚄ(ctx, tmp)
+		arg4, err = ec.unmarshalOTaskOrder2ᚕᚖtaskᚋgoᚋentᚐTaskOrderᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -127,7 +127,7 @@ func (ec *executionContext) field_Query_todos_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Todo_children_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Task_children_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *entgql.Cursor[int]
@@ -166,10 +166,10 @@ func (ec *executionContext) field_Todo_children_args(ctx context.Context, rawArg
 		}
 	}
 	args["last"] = arg3
-	var arg4 []*ent.TodoOrder
+	var arg4 []*ent.TaskOrder
 	if tmp, ok := rawArgs["orderBy"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg4, err = ec.unmarshalOTodoOrder2ᚕᚖtodoᚋgoᚋentᚐTodoOrderᚄ(ctx, tmp)
+		arg4, err = ec.unmarshalOTaskOrder2ᚕᚖtaskᚋgoᚋentᚐTaskOrderᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -381,7 +381,7 @@ func (ec *executionContext) _Query_node(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(ent.Noder)
 	fc.Result = res
-	return ec.marshalONode2todoᚋgoᚋentᚐNoder(ctx, field.Selections, res)
+	return ec.marshalONode2taskᚋgoᚋentᚐNoder(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -436,7 +436,7 @@ func (ec *executionContext) _Query_nodes(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]ent.Noder)
 	fc.Result = res
-	return ec.marshalNNode2ᚕtodoᚋgoᚋentᚐNoder(ctx, field.Selections, res)
+	return ec.marshalNNode2ᚕtaskᚋgoᚋentᚐNoder(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -463,8 +463,8 @@ func (ec *executionContext) fieldContext_Query_nodes(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_todos(ctx, field)
+func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_tasks(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -477,7 +477,7 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Todos(rctx, fc.Args["after"].(*entgql.Cursor[int]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[int]), fc.Args["last"].(*int), fc.Args["orderBy"].([]*ent.TodoOrder))
+		return ec.resolvers.Query().Tasks(rctx, fc.Args["after"].(*entgql.Cursor[int]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[int]), fc.Args["last"].(*int), fc.Args["orderBy"].([]*ent.TaskOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -489,12 +489,12 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*ent.TodoConnection)
+	res := resTmp.(*ent.TaskConnection)
 	fc.Result = res
-	return ec.marshalNTodoConnection2ᚖtodoᚋgoᚋentᚐTodoConnection(ctx, field.Selections, res)
+	return ec.marshalNTaskConnection2ᚖtaskᚋgoᚋentᚐTaskConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_todos(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -503,13 +503,13 @@ func (ec *executionContext) fieldContext_Query_todos(ctx context.Context, field 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "edges":
-				return ec.fieldContext_TodoConnection_edges(ctx, field)
+				return ec.fieldContext_TaskConnection_edges(ctx, field)
 			case "pageInfo":
-				return ec.fieldContext_TodoConnection_pageInfo(ctx, field)
+				return ec.fieldContext_TaskConnection_pageInfo(ctx, field)
 			case "totalCount":
-				return ec.fieldContext_TodoConnection_totalCount(ctx, field)
+				return ec.fieldContext_TaskConnection_totalCount(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TodoConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TaskConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -519,7 +519,7 @@ func (ec *executionContext) fieldContext_Query_todos(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_todos_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_tasks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -655,8 +655,8 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.CollectedField, obj *ent.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_id(ctx, field)
+func (ec *executionContext) _Task_id(ctx context.Context, field graphql.CollectedField, obj *ent.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -686,9 +686,9 @@ func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Todo_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Todo",
+		Object:     "Task",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -699,8 +699,8 @@ func (ec *executionContext) fieldContext_Todo_id(ctx context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_text(ctx context.Context, field graphql.CollectedField, obj *ent.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_text(ctx, field)
+func (ec *executionContext) _Task_text(ctx context.Context, field graphql.CollectedField, obj *ent.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_text(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -730,9 +730,9 @@ func (ec *executionContext) _Todo_text(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Todo_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Todo",
+		Object:     "Task",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -743,8 +743,8 @@ func (ec *executionContext) fieldContext_Todo_text(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_createdAt(ctx context.Context, field graphql.CollectedField, obj *ent.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_createdAt(ctx, field)
+func (ec *executionContext) _Task_createdAt(ctx context.Context, field graphql.CollectedField, obj *ent.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -774,9 +774,9 @@ func (ec *executionContext) _Todo_createdAt(ctx context.Context, field graphql.C
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Todo_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Todo",
+		Object:     "Task",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -787,8 +787,8 @@ func (ec *executionContext) fieldContext_Todo_createdAt(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_status(ctx context.Context, field graphql.CollectedField, obj *ent.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_status(ctx, field)
+func (ec *executionContext) _Task_status(ctx context.Context, field graphql.CollectedField, obj *ent.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_status(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -813,26 +813,26 @@ func (ec *executionContext) _Todo_status(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(todo.Status)
+	res := resTmp.(task.Status)
 	fc.Result = res
-	return ec.marshalNTodoStatus2todoᚋgoᚋentᚋtodoᚐStatus(ctx, field.Selections, res)
+	return ec.marshalNTaskStatus2taskᚋgoᚋentᚋtaskᚐStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Todo_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Todo",
+		Object:     "Task",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type TodoStatus does not have child fields")
+			return nil, errors.New("field of type TaskStatus does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_priority(ctx context.Context, field graphql.CollectedField, obj *ent.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_priority(ctx, field)
+func (ec *executionContext) _Task_priority(ctx context.Context, field graphql.CollectedField, obj *ent.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_priority(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -862,9 +862,9 @@ func (ec *executionContext) _Todo_priority(ctx context.Context, field graphql.Co
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Todo_priority(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_priority(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Todo",
+		Object:     "Task",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -875,8 +875,8 @@ func (ec *executionContext) fieldContext_Todo_priority(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_parent(ctx context.Context, field graphql.CollectedField, obj *ent.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_parent(ctx, field)
+func (ec *executionContext) _Task_parent(ctx context.Context, field graphql.CollectedField, obj *ent.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_parent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -898,42 +898,42 @@ func (ec *executionContext) _Todo_parent(ctx context.Context, field graphql.Coll
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*ent.Todo)
+	res := resTmp.(*ent.Task)
 	fc.Result = res
-	return ec.marshalOTodo2ᚖtodoᚋgoᚋentᚐTodo(ctx, field.Selections, res)
+	return ec.marshalOTask2ᚖtaskᚋgoᚋentᚐTask(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Todo_parent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_parent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Todo",
+		Object:     "Task",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Todo_id(ctx, field)
+				return ec.fieldContext_Task_id(ctx, field)
 			case "text":
-				return ec.fieldContext_Todo_text(ctx, field)
+				return ec.fieldContext_Task_text(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Todo_createdAt(ctx, field)
+				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "status":
-				return ec.fieldContext_Todo_status(ctx, field)
+				return ec.fieldContext_Task_status(ctx, field)
 			case "priority":
-				return ec.fieldContext_Todo_priority(ctx, field)
+				return ec.fieldContext_Task_priority(ctx, field)
 			case "parent":
-				return ec.fieldContext_Todo_parent(ctx, field)
+				return ec.fieldContext_Task_parent(ctx, field)
 			case "children":
-				return ec.fieldContext_Todo_children(ctx, field)
+				return ec.fieldContext_Task_children(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_children(ctx context.Context, field graphql.CollectedField, obj *ent.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_children(ctx, field)
+func (ec *executionContext) _Task_children(ctx context.Context, field graphql.CollectedField, obj *ent.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_children(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -946,7 +946,7 @@ func (ec *executionContext) _Todo_children(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Children(ctx, fc.Args["after"].(*entgql.Cursor[int]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[int]), fc.Args["last"].(*int), fc.Args["orderBy"].([]*ent.TodoOrder))
+		return obj.Children(ctx, fc.Args["after"].(*entgql.Cursor[int]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[int]), fc.Args["last"].(*int), fc.Args["orderBy"].([]*ent.TaskOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -958,27 +958,27 @@ func (ec *executionContext) _Todo_children(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*ent.TodoConnection)
+	res := resTmp.(*ent.TaskConnection)
 	fc.Result = res
-	return ec.marshalNTodoConnection2ᚖtodoᚋgoᚋentᚐTodoConnection(ctx, field.Selections, res)
+	return ec.marshalNTaskConnection2ᚖtaskᚋgoᚋentᚐTaskConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Todo_children(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_children(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Todo",
+		Object:     "Task",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "edges":
-				return ec.fieldContext_TodoConnection_edges(ctx, field)
+				return ec.fieldContext_TaskConnection_edges(ctx, field)
 			case "pageInfo":
-				return ec.fieldContext_TodoConnection_pageInfo(ctx, field)
+				return ec.fieldContext_TaskConnection_pageInfo(ctx, field)
 			case "totalCount":
-				return ec.fieldContext_TodoConnection_totalCount(ctx, field)
+				return ec.fieldContext_TaskConnection_totalCount(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TodoConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TaskConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -988,15 +988,15 @@ func (ec *executionContext) fieldContext_Todo_children(ctx context.Context, fiel
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Todo_children_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Task_children_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TodoConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.TodoConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TodoConnection_edges(ctx, field)
+func (ec *executionContext) _TaskConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.TaskConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskConnection_edges(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1018,32 +1018,32 @@ func (ec *executionContext) _TodoConnection_edges(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*ent.TodoEdge)
+	res := resTmp.([]*ent.TaskEdge)
 	fc.Result = res
-	return ec.marshalOTodoEdge2ᚕᚖtodoᚋgoᚋentᚐTodoEdge(ctx, field.Selections, res)
+	return ec.marshalOTaskEdge2ᚕᚖtaskᚋgoᚋentᚐTaskEdge(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TodoConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TodoConnection",
+		Object:     "TaskConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "node":
-				return ec.fieldContext_TodoEdge_node(ctx, field)
+				return ec.fieldContext_TaskEdge_node(ctx, field)
 			case "cursor":
-				return ec.fieldContext_TodoEdge_cursor(ctx, field)
+				return ec.fieldContext_TaskEdge_cursor(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TodoEdge", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TaskEdge", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TodoConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *ent.TodoConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TodoConnection_pageInfo(ctx, field)
+func (ec *executionContext) _TaskConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *ent.TaskConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskConnection_pageInfo(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1073,9 +1073,9 @@ func (ec *executionContext) _TodoConnection_pageInfo(ctx context.Context, field 
 	return ec.marshalNPageInfo2entgoᚗioᚋcontribᚋentgqlᚐPageInfo(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TodoConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TodoConnection",
+		Object:     "TaskConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1096,8 +1096,8 @@ func (ec *executionContext) fieldContext_TodoConnection_pageInfo(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _TodoConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *ent.TodoConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TodoConnection_totalCount(ctx, field)
+func (ec *executionContext) _TaskConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *ent.TaskConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskConnection_totalCount(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1127,9 +1127,9 @@ func (ec *executionContext) _TodoConnection_totalCount(ctx context.Context, fiel
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TodoConnection_totalCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskConnection_totalCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TodoConnection",
+		Object:     "TaskConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1140,8 +1140,8 @@ func (ec *executionContext) fieldContext_TodoConnection_totalCount(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _TodoEdge_node(ctx context.Context, field graphql.CollectedField, obj *ent.TodoEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TodoEdge_node(ctx, field)
+func (ec *executionContext) _TaskEdge_node(ctx context.Context, field graphql.CollectedField, obj *ent.TaskEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskEdge_node(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1163,42 +1163,42 @@ func (ec *executionContext) _TodoEdge_node(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*ent.Todo)
+	res := resTmp.(*ent.Task)
 	fc.Result = res
-	return ec.marshalOTodo2ᚖtodoᚋgoᚋentᚐTodo(ctx, field.Selections, res)
+	return ec.marshalOTask2ᚖtaskᚋgoᚋentᚐTask(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TodoEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TodoEdge",
+		Object:     "TaskEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Todo_id(ctx, field)
+				return ec.fieldContext_Task_id(ctx, field)
 			case "text":
-				return ec.fieldContext_Todo_text(ctx, field)
+				return ec.fieldContext_Task_text(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Todo_createdAt(ctx, field)
+				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "status":
-				return ec.fieldContext_Todo_status(ctx, field)
+				return ec.fieldContext_Task_status(ctx, field)
 			case "priority":
-				return ec.fieldContext_Todo_priority(ctx, field)
+				return ec.fieldContext_Task_priority(ctx, field)
 			case "parent":
-				return ec.fieldContext_Todo_parent(ctx, field)
+				return ec.fieldContext_Task_parent(ctx, field)
 			case "children":
-				return ec.fieldContext_Todo_children(ctx, field)
+				return ec.fieldContext_Task_children(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TodoEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *ent.TodoEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TodoEdge_cursor(ctx, field)
+func (ec *executionContext) _TaskEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *ent.TaskEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1228,9 +1228,9 @@ func (ec *executionContext) _TodoEdge_cursor(ctx context.Context, field graphql.
 	return ec.marshalNCursor2entgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TodoEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TodoEdge",
+		Object:     "TaskEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1245,8 +1245,8 @@ func (ec *executionContext) fieldContext_TodoEdge_cursor(ctx context.Context, fi
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateTodoInput(ctx context.Context, obj interface{}) (ent.CreateTodoInput, error) {
-	var it ent.CreateTodoInput
+func (ec *executionContext) unmarshalInputCreateTaskInput(ctx context.Context, obj interface{}) (ent.CreateTaskInput, error) {
+	var it ent.CreateTaskInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -1281,7 +1281,7 @@ func (ec *executionContext) unmarshalInputCreateTodoInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOTodoStatus2ᚖtodoᚋgoᚋentᚋtodoᚐStatus(ctx, v)
+			data, err := ec.unmarshalOTaskStatus2ᚖtaskᚋgoᚋentᚋtaskᚐStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1319,8 +1319,8 @@ func (ec *executionContext) unmarshalInputCreateTodoInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTodoOrder(ctx context.Context, obj interface{}) (ent.TodoOrder, error) {
-	var it ent.TodoOrder
+func (ec *executionContext) unmarshalInputTaskOrder(ctx context.Context, obj interface{}) (ent.TaskOrder, error) {
+	var it ent.TaskOrder
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -1350,7 +1350,7 @@ func (ec *executionContext) unmarshalInputTodoOrder(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNTodoOrderField2ᚖtodoᚋgoᚋentᚐTodoOrderField(ctx, v)
+			data, err := ec.unmarshalNTaskOrderField2ᚖtaskᚋgoᚋentᚐTaskOrderField(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1369,11 +1369,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case *ent.Todo:
+	case *ent.Task:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Todo(ctx, sel, obj)
+		return ec._Task(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -1491,7 +1491,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "todos":
+		case "tasks":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -1500,7 +1500,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_todos(ctx, field)
+				res = ec._Query_tasks(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1544,39 +1544,39 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var todoImplementors = []string{"Todo", "Node"}
+var taskImplementors = []string{"Task", "Node"}
 
-func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj *ent.Todo) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, todoImplementors)
+func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj *ent.Task) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, taskImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Todo")
+			out.Values[i] = graphql.MarshalString("Task")
 		case "id":
-			out.Values[i] = ec._Todo_id(ctx, field, obj)
+			out.Values[i] = ec._Task_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "text":
-			out.Values[i] = ec._Todo_text(ctx, field, obj)
+			out.Values[i] = ec._Task_text(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
-			out.Values[i] = ec._Todo_createdAt(ctx, field, obj)
+			out.Values[i] = ec._Task_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "status":
-			out.Values[i] = ec._Todo_status(ctx, field, obj)
+			out.Values[i] = ec._Task_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "priority":
-			out.Values[i] = ec._Todo_priority(ctx, field, obj)
+			out.Values[i] = ec._Task_priority(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1589,7 +1589,7 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Todo_parent(ctx, field, obj)
+				res = ec._Task_parent(ctx, field, obj)
 				return res
 			}
 
@@ -1622,7 +1622,7 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Todo_children(ctx, field, obj)
+				res = ec._Task_children(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1672,26 +1672,26 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var todoConnectionImplementors = []string{"TodoConnection"}
+var taskConnectionImplementors = []string{"TaskConnection"}
 
-func (ec *executionContext) _TodoConnection(ctx context.Context, sel ast.SelectionSet, obj *ent.TodoConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, todoConnectionImplementors)
+func (ec *executionContext) _TaskConnection(ctx context.Context, sel ast.SelectionSet, obj *ent.TaskConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, taskConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TodoConnection")
+			out.Values[i] = graphql.MarshalString("TaskConnection")
 		case "edges":
-			out.Values[i] = ec._TodoConnection_edges(ctx, field, obj)
+			out.Values[i] = ec._TaskConnection_edges(ctx, field, obj)
 		case "pageInfo":
-			out.Values[i] = ec._TodoConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = ec._TaskConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "totalCount":
-			out.Values[i] = ec._TodoConnection_totalCount(ctx, field, obj)
+			out.Values[i] = ec._TaskConnection_totalCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1718,21 +1718,21 @@ func (ec *executionContext) _TodoConnection(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var todoEdgeImplementors = []string{"TodoEdge"}
+var taskEdgeImplementors = []string{"TaskEdge"}
 
-func (ec *executionContext) _TodoEdge(ctx context.Context, sel ast.SelectionSet, obj *ent.TodoEdge) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, todoEdgeImplementors)
+func (ec *executionContext) _TaskEdge(ctx context.Context, sel ast.SelectionSet, obj *ent.TaskEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, taskEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TodoEdge")
+			out.Values[i] = graphql.MarshalString("TaskEdge")
 		case "node":
-			out.Values[i] = ec._TodoEdge_node(ctx, field, obj)
+			out.Values[i] = ec._TaskEdge_node(ctx, field, obj)
 		case "cursor":
-			out.Values[i] = ec._TodoEdge_cursor(ctx, field, obj)
+			out.Values[i] = ec._TaskEdge_cursor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1763,8 +1763,8 @@ func (ec *executionContext) _TodoEdge(ctx context.Context, sel ast.SelectionSet,
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNCreateTodoInput2todoᚋgoᚋentᚐCreateTodoInput(ctx context.Context, v interface{}) (ent.CreateTodoInput, error) {
-	res, err := ec.unmarshalInputCreateTodoInput(ctx, v)
+func (ec *executionContext) unmarshalNCreateTaskInput2taskᚋgoᚋentᚐCreateTaskInput(ctx context.Context, v interface{}) (ent.CreateTaskInput, error) {
+	res, err := ec.unmarshalInputCreateTaskInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -1778,7 +1778,7 @@ func (ec *executionContext) marshalNCursor2entgoᚗioᚋcontribᚋentgqlᚐCurso
 	return v
 }
 
-func (ec *executionContext) marshalNNode2ᚕtodoᚋgoᚋentᚐNoder(ctx context.Context, sel ast.SelectionSet, v []ent.Noder) graphql.Marshaler {
+func (ec *executionContext) marshalNNode2ᚕtaskᚋgoᚋentᚐNoder(ctx context.Context, sel ast.SelectionSet, v []ent.Noder) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -1802,7 +1802,7 @@ func (ec *executionContext) marshalNNode2ᚕtodoᚋgoᚋentᚐNoder(ctx context.
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalONode2todoᚋgoᚋentᚐNoder(ctx, sel, v[i])
+			ret[i] = ec.marshalONode2taskᚋgoᚋentᚐNoder(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -1830,6 +1830,51 @@ func (ec *executionContext) marshalNPageInfo2entgoᚗioᚋcontribᚋentgqlᚐPag
 	return ec._PageInfo(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNTaskConnection2taskᚋgoᚋentᚐTaskConnection(ctx context.Context, sel ast.SelectionSet, v ent.TaskConnection) graphql.Marshaler {
+	return ec._TaskConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTaskConnection2ᚖtaskᚋgoᚋentᚐTaskConnection(ctx context.Context, sel ast.SelectionSet, v *ent.TaskConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TaskConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTaskOrder2ᚖtaskᚋgoᚋentᚐTaskOrder(ctx context.Context, v interface{}) (*ent.TaskOrder, error) {
+	res, err := ec.unmarshalInputTaskOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTaskOrderField2ᚖtaskᚋgoᚋentᚐTaskOrderField(ctx context.Context, v interface{}) (*ent.TaskOrderField, error) {
+	var res = new(ent.TaskOrderField)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTaskOrderField2ᚖtaskᚋgoᚋentᚐTaskOrderField(ctx context.Context, sel ast.SelectionSet, v *ent.TaskOrderField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalNTaskStatus2taskᚋgoᚋentᚋtaskᚐStatus(ctx context.Context, v interface{}) (task.Status, error) {
+	var res task.Status
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTaskStatus2taskᚋgoᚋentᚋtaskᚐStatus(ctx context.Context, sel ast.SelectionSet, v task.Status) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -1843,51 +1888,6 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNTodoConnection2todoᚋgoᚋentᚐTodoConnection(ctx context.Context, sel ast.SelectionSet, v ent.TodoConnection) graphql.Marshaler {
-	return ec._TodoConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTodoConnection2ᚖtodoᚋgoᚋentᚐTodoConnection(ctx context.Context, sel ast.SelectionSet, v *ent.TodoConnection) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TodoConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNTodoOrder2ᚖtodoᚋgoᚋentᚐTodoOrder(ctx context.Context, v interface{}) (*ent.TodoOrder, error) {
-	res, err := ec.unmarshalInputTodoOrder(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNTodoOrderField2ᚖtodoᚋgoᚋentᚐTodoOrderField(ctx context.Context, v interface{}) (*ent.TodoOrderField, error) {
-	var res = new(ent.TodoOrderField)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTodoOrderField2ᚖtodoᚋgoᚋentᚐTodoOrderField(ctx context.Context, sel ast.SelectionSet, v *ent.TodoOrderField) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return v
-}
-
-func (ec *executionContext) unmarshalNTodoStatus2todoᚋgoᚋentᚋtodoᚐStatus(ctx context.Context, v interface{}) (todo.Status, error) {
-	var res todo.Status
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTodoStatus2todoᚋgoᚋentᚋtodoᚐStatus(ctx context.Context, sel ast.SelectionSet, v todo.Status) graphql.Marshaler {
-	return v
 }
 
 func (ec *executionContext) unmarshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCursor(ctx context.Context, v interface{}) (*entgql.Cursor[int], error) {
@@ -1906,37 +1906,21 @@ func (ec *executionContext) marshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCu
 	return v
 }
 
-func (ec *executionContext) marshalONode2todoᚋgoᚋentᚐNoder(ctx context.Context, sel ast.SelectionSet, v ent.Noder) graphql.Marshaler {
+func (ec *executionContext) marshalONode2taskᚋgoᚋentᚐNoder(ctx context.Context, sel ast.SelectionSet, v ent.Noder) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Node(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalTime(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+func (ec *executionContext) marshalOTask2ᚖtaskᚋgoᚋentᚐTask(ctx context.Context, sel ast.SelectionSet, v *ent.Task) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalTime(*v)
-	return res
+	return ec._Task(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOTodo2ᚖtodoᚋgoᚋentᚐTodo(ctx context.Context, sel ast.SelectionSet, v *ent.Todo) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Todo(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOTodoEdge2ᚕᚖtodoᚋgoᚋentᚐTodoEdge(ctx context.Context, sel ast.SelectionSet, v []*ent.TodoEdge) graphql.Marshaler {
+func (ec *executionContext) marshalOTaskEdge2ᚕᚖtaskᚋgoᚋentᚐTaskEdge(ctx context.Context, sel ast.SelectionSet, v []*ent.TaskEdge) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -1963,7 +1947,7 @@ func (ec *executionContext) marshalOTodoEdge2ᚕᚖtodoᚋgoᚋentᚐTodoEdge(ct
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOTodoEdge2ᚖtodoᚋgoᚋentᚐTodoEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalOTaskEdge2ᚖtaskᚋgoᚋentᚐTaskEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -1977,14 +1961,14 @@ func (ec *executionContext) marshalOTodoEdge2ᚕᚖtodoᚋgoᚋentᚐTodoEdge(ct
 	return ret
 }
 
-func (ec *executionContext) marshalOTodoEdge2ᚖtodoᚋgoᚋentᚐTodoEdge(ctx context.Context, sel ast.SelectionSet, v *ent.TodoEdge) graphql.Marshaler {
+func (ec *executionContext) marshalOTaskEdge2ᚖtaskᚋgoᚋentᚐTaskEdge(ctx context.Context, sel ast.SelectionSet, v *ent.TaskEdge) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TodoEdge(ctx, sel, v)
+	return ec._TaskEdge(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTodoOrder2ᚕᚖtodoᚋgoᚋentᚐTodoOrderᚄ(ctx context.Context, v interface{}) ([]*ent.TodoOrder, error) {
+func (ec *executionContext) unmarshalOTaskOrder2ᚕᚖtaskᚋgoᚋentᚐTaskOrderᚄ(ctx context.Context, v interface{}) ([]*ent.TaskOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -1993,10 +1977,10 @@ func (ec *executionContext) unmarshalOTodoOrder2ᚕᚖtodoᚋgoᚋentᚐTodoOrde
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*ent.TodoOrder, len(vSlice))
+	res := make([]*ent.TaskOrder, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNTodoOrder2ᚖtodoᚋgoᚋentᚐTodoOrder(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNTaskOrder2ᚖtaskᚋgoᚋentᚐTaskOrder(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -2004,20 +1988,36 @@ func (ec *executionContext) unmarshalOTodoOrder2ᚕᚖtodoᚋgoᚋentᚐTodoOrde
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOTodoStatus2ᚖtodoᚋgoᚋentᚋtodoᚐStatus(ctx context.Context, v interface{}) (*todo.Status, error) {
+func (ec *executionContext) unmarshalOTaskStatus2ᚖtaskᚋgoᚋentᚋtaskᚐStatus(ctx context.Context, v interface{}) (*task.Status, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(todo.Status)
+	var res = new(task.Status)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOTodoStatus2ᚖtodoᚋgoᚋentᚋtodoᚐStatus(ctx context.Context, sel ast.SelectionSet, v *todo.Status) graphql.Marshaler {
+func (ec *executionContext) marshalOTaskStatus2ᚖtaskᚋgoᚋentᚋtaskᚐStatus(ctx context.Context, sel ast.SelectionSet, v *task.Status) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
+	return res
 }
 
 // endregion ***************************** type.gotpl *****************************

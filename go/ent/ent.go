@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
-	"todo/go/ent/todo"
+	"task/go/ent/task"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -73,7 +73,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			todo.Table: todo.ValidColumn,
+			task.Table: task.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

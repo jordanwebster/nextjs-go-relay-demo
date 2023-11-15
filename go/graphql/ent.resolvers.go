@@ -6,8 +6,8 @@ package graphql
 
 import (
 	"context"
-	"todo/go/ent"
-	"todo/go/graphql/generated"
+	"task/go/ent"
+	"task/go/graphql/generated"
 
 	"entgo.io/contrib/entgql"
 )
@@ -22,11 +22,11 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []int) ([]ent.Noder, erro
 	return r.client.Noders(ctx, ids)
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, orderBy []*ent.TodoOrder) (*ent.TodoConnection, error) {
-	return r.client.Todo.Query().
+// Tasks is the resolver for the tasks field.
+func (r *queryResolver) Tasks(ctx context.Context, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, orderBy []*ent.TaskOrder) (*ent.TaskConnection, error) {
+	return r.client.Task.Query().
 		Paginate(ctx, after, first, before, last,
-			ent.WithTodoOrder(orderBy),
+			ent.WithTaskOrder(orderBy),
 		)
 }
 

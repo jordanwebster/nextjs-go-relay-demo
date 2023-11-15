@@ -3,8 +3,8 @@ package api
 import (
 	"log"
 	"net/http"
-	"todo/go/ent"
-	"todo/go/graphql"
+	"task/go/ent"
+	"task/go/graphql"
 
 	"entgo.io/ent/dialect"
 	"github.com/99designs/gqlgen/graphql/handler"

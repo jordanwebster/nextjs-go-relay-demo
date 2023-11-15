@@ -9,9 +9,9 @@ import (
 	"log"
 	"reflect"
 
-	"todo/go/ent/migrate"
+	"task/go/ent/migrate"
 
-	"todo/go/ent/todo"
+	"task/go/ent/task"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -24,8 +24,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Todo is the client for interacting with the Todo builders.
-	Todo *TodoClient
+	// Task is the client for interacting with the Task builders.
+	Task *TaskClient
 	// additional fields for node api
 	tables tables
 }
@@ -41,7 +41,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Todo = NewTodoClient(c.config)
+	c.Task = NewTaskClient(c.config)
 }
 
 type (
@@ -127,7 +127,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:    ctx,
 		config: cfg,
-		Todo:   NewTodoClient(cfg),
+		Task:   NewTaskClient(cfg),
 	}, nil
 }
 
@@ -147,14 +147,14 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:    ctx,
 		config: cfg,
-		Todo:   NewTodoClient(cfg),
+		Task:   NewTaskClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Todo.
+//		Task.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -176,126 +176,126 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Todo.Use(hooks...)
+	c.Task.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Todo.Intercept(interceptors...)
+	c.Task.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *TodoMutation:
-		return c.Todo.mutate(ctx, m)
+	case *TaskMutation:
+		return c.Task.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
 }
 
-// TodoClient is a client for the Todo schema.
-type TodoClient struct {
+// TaskClient is a client for the Task schema.
+type TaskClient struct {
 	config
 }
 
-// NewTodoClient returns a client for the Todo from the given config.
-func NewTodoClient(c config) *TodoClient {
-	return &TodoClient{config: c}
+// NewTaskClient returns a client for the Task from the given config.
+func NewTaskClient(c config) *TaskClient {
+	return &TaskClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `todo.Hooks(f(g(h())))`.
-func (c *TodoClient) Use(hooks ...Hook) {
-	c.hooks.Todo = append(c.hooks.Todo, hooks...)
+// A call to `Use(f, g, h)` equals to `task.Hooks(f(g(h())))`.
+func (c *TaskClient) Use(hooks ...Hook) {
+	c.hooks.Task = append(c.hooks.Task, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `todo.Intercept(f(g(h())))`.
-func (c *TodoClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Todo = append(c.inters.Todo, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `task.Intercept(f(g(h())))`.
+func (c *TaskClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Task = append(c.inters.Task, interceptors...)
 }
 
-// Create returns a builder for creating a Todo entity.
-func (c *TodoClient) Create() *TodoCreate {
-	mutation := newTodoMutation(c.config, OpCreate)
-	return &TodoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a Task entity.
+func (c *TaskClient) Create() *TaskCreate {
+	mutation := newTaskMutation(c.config, OpCreate)
+	return &TaskCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Todo entities.
-func (c *TodoClient) CreateBulk(builders ...*TodoCreate) *TodoCreateBulk {
-	return &TodoCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Task entities.
+func (c *TaskClient) CreateBulk(builders ...*TaskCreate) *TaskCreateBulk {
+	return &TaskCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *TodoClient) MapCreateBulk(slice any, setFunc func(*TodoCreate, int)) *TodoCreateBulk {
+func (c *TaskClient) MapCreateBulk(slice any, setFunc func(*TaskCreate, int)) *TaskCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &TodoCreateBulk{err: fmt.Errorf("calling to TodoClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &TaskCreateBulk{err: fmt.Errorf("calling to TaskClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*TodoCreate, rv.Len())
+	builders := make([]*TaskCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &TodoCreateBulk{config: c.config, builders: builders}
+	return &TaskCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Todo.
-func (c *TodoClient) Update() *TodoUpdate {
-	mutation := newTodoMutation(c.config, OpUpdate)
-	return &TodoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Task.
+func (c *TaskClient) Update() *TaskUpdate {
+	mutation := newTaskMutation(c.config, OpUpdate)
+	return &TaskUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *TodoClient) UpdateOne(t *Todo) *TodoUpdateOne {
-	mutation := newTodoMutation(c.config, OpUpdateOne, withTodo(t))
-	return &TodoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *TaskClient) UpdateOne(t *Task) *TaskUpdateOne {
+	mutation := newTaskMutation(c.config, OpUpdateOne, withTask(t))
+	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TodoClient) UpdateOneID(id int) *TodoUpdateOne {
-	mutation := newTodoMutation(c.config, OpUpdateOne, withTodoID(id))
-	return &TodoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *TaskClient) UpdateOneID(id int) *TaskUpdateOne {
+	mutation := newTaskMutation(c.config, OpUpdateOne, withTaskID(id))
+	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Todo.
-func (c *TodoClient) Delete() *TodoDelete {
-	mutation := newTodoMutation(c.config, OpDelete)
-	return &TodoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Task.
+func (c *TaskClient) Delete() *TaskDelete {
+	mutation := newTaskMutation(c.config, OpDelete)
+	return &TaskDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *TodoClient) DeleteOne(t *Todo) *TodoDeleteOne {
+func (c *TaskClient) DeleteOne(t *Task) *TaskDeleteOne {
 	return c.DeleteOneID(t.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TodoClient) DeleteOneID(id int) *TodoDeleteOne {
-	builder := c.Delete().Where(todo.ID(id))
+func (c *TaskClient) DeleteOneID(id int) *TaskDeleteOne {
+	builder := c.Delete().Where(task.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &TodoDeleteOne{builder}
+	return &TaskDeleteOne{builder}
 }
 
-// Query returns a query builder for Todo.
-func (c *TodoClient) Query() *TodoQuery {
-	return &TodoQuery{
+// Query returns a query builder for Task.
+func (c *TaskClient) Query() *TaskQuery {
+	return &TaskQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeTodo},
+		ctx:    &QueryContext{Type: TypeTask},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a Todo entity by its id.
-func (c *TodoClient) Get(ctx context.Context, id int) (*Todo, error) {
-	return c.Query().Where(todo.ID(id)).Only(ctx)
+// Get returns a Task entity by its id.
+func (c *TaskClient) Get(ctx context.Context, id int) (*Task, error) {
+	return c.Query().Where(task.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TodoClient) GetX(ctx context.Context, id int) *Todo {
+func (c *TaskClient) GetX(ctx context.Context, id int) *Task {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -303,15 +303,15 @@ func (c *TodoClient) GetX(ctx context.Context, id int) *Todo {
 	return obj
 }
 
-// QueryParent queries the parent edge of a Todo.
-func (c *TodoClient) QueryParent(t *Todo) *TodoQuery {
-	query := (&TodoClient{config: c.config}).Query()
+// QueryParent queries the parent edge of a Task.
+func (c *TaskClient) QueryParent(t *Task) *TaskQuery {
+	query := (&TaskClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := t.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(todo.Table, todo.FieldID, id),
-			sqlgraph.To(todo.Table, todo.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, todo.ParentTable, todo.ParentColumn),
+			sqlgraph.From(task.Table, task.FieldID, id),
+			sqlgraph.To(task.Table, task.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, task.ParentTable, task.ParentColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -319,15 +319,15 @@ func (c *TodoClient) QueryParent(t *Todo) *TodoQuery {
 	return query
 }
 
-// QueryChildren queries the children edge of a Todo.
-func (c *TodoClient) QueryChildren(t *Todo) *TodoQuery {
-	query := (&TodoClient{config: c.config}).Query()
+// QueryChildren queries the children edge of a Task.
+func (c *TaskClient) QueryChildren(t *Task) *TaskQuery {
+	query := (&TaskClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := t.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(todo.Table, todo.FieldID, id),
-			sqlgraph.To(todo.Table, todo.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, todo.ChildrenTable, todo.ChildrenColumn),
+			sqlgraph.From(task.Table, task.FieldID, id),
+			sqlgraph.To(task.Table, task.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, task.ChildrenTable, task.ChildrenColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -336,36 +336,36 @@ func (c *TodoClient) QueryChildren(t *Todo) *TodoQuery {
 }
 
 // Hooks returns the client hooks.
-func (c *TodoClient) Hooks() []Hook {
-	return c.hooks.Todo
+func (c *TaskClient) Hooks() []Hook {
+	return c.hooks.Task
 }
 
 // Interceptors returns the client interceptors.
-func (c *TodoClient) Interceptors() []Interceptor {
-	return c.inters.Todo
+func (c *TaskClient) Interceptors() []Interceptor {
+	return c.inters.Task
 }
 
-func (c *TodoClient) mutate(ctx context.Context, m *TodoMutation) (Value, error) {
+func (c *TaskClient) mutate(ctx context.Context, m *TaskMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&TodoCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TaskCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&TodoUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TaskUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&TodoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&TodoDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&TaskDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown Todo mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown Task mutation op: %q", m.Op())
 	}
 }
 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Todo []ent.Hook
+		Task []ent.Hook
 	}
 	inters struct {
-		Todo []ent.Interceptor
+		Task []ent.Interceptor
 	}
 )

@@ -11,8 +11,8 @@ const TaskListFragment = graphql`
     cursor: { type: "Cursor" }
     count: { type: "Int", defaultValue: 5 }
   ) {
-    todos(after: $cursor, first: $count)
-      @connection(key: "TaskListFragment_todos") {
+    tasks(after: $cursor, first: $count)
+      @connection(key: "TaskListFragment_tasks") {
       __id
       pageInfo {
         startCursor
@@ -31,17 +31,17 @@ const TaskListFragment = graphql`
 const TaskListAddTaskMutation = graphql`
   mutation TaskListAddTaskMutation(
     $connections: [ID!]!
-    $input: CreateTodoInput!
+    $input: CreateTaskInput!
   ) {
-    createTodo(input: $input)
-      @prependNode(connections: $connections, edgeTypeName: "TodoEdge") {
+    createTask(input: $input)
+      @prependNode(connections: $connections, edgeTypeName: "TaskEdge") {
       ...TaskFragment
     }
   }
 `;
 const TaskListDeleteTaskMutation = graphql`
   mutation TaskListDeleteTaskMutation($connections: [ID!]!, $id: ID!) {
-    deleteTodo(id: $id) {
+    deleteTask(id: $id) {
       id @deleteEdge(connections: $connections)
     }
   }
@@ -79,12 +79,12 @@ export default function TaskList({ tasks }: Props) {
           input: {
             text: taskTitle,
           },
-          connections: [data.todos.__id],
+          connections: [data.tasks.__id],
         },
       });
       setTaskTitle("");
     },
-    [taskTitle, setTaskTitle, addTask, data.todos],
+    [taskTitle, setTaskTitle, addTask, data.tasks],
   );
 
   const onDeleteTask = useCallback(
@@ -92,11 +92,11 @@ export default function TaskList({ tasks }: Props) {
       deleteTask({
         variables: {
           id: id,
-          connections: [data.todos.__id],
+          connections: [data.tasks.__id],
         },
       });
     },
-    [deleteTask, data.todos],
+    [deleteTask, data.tasks],
   );
 
   return (
@@ -110,7 +110,7 @@ export default function TaskList({ tasks }: Props) {
         <button type="submit">Create</button>
       </form>
       <ul>
-        {data.todos.edges?.map(
+        {data.tasks.edges?.map(
           (edge) =>
             edge?.node && (
               <li key={edge.node.id}>

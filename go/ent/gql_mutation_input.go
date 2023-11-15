@@ -3,22 +3,22 @@
 package ent
 
 import (
+	"task/go/ent/task"
 	"time"
-	"todo/go/ent/todo"
 )
 
-// CreateTodoInput represents a mutation input for creating todos.
-type CreateTodoInput struct {
+// CreateTaskInput represents a mutation input for creating tasks.
+type CreateTaskInput struct {
 	Text      string
 	CreatedAt *time.Time
-	Status    *todo.Status
+	Status    *task.Status
 	Priority  *int
 	ParentID  *int
 	ChildIDs  []int
 }
 
-// Mutate applies the CreateTodoInput on the TodoMutation builder.
-func (i *CreateTodoInput) Mutate(m *TodoMutation) {
+// Mutate applies the CreateTaskInput on the TaskMutation builder.
+func (i *CreateTaskInput) Mutate(m *TaskMutation) {
 	m.SetText(i.Text)
 	if v := i.CreatedAt; v != nil {
 		m.SetCreatedAt(*v)
@@ -37,8 +37,8 @@ func (i *CreateTodoInput) Mutate(m *TodoMutation) {
 	}
 }
 
-// SetInput applies the change-set in the CreateTodoInput on the TodoCreate builder.
-func (c *TodoCreate) SetInput(i CreateTodoInput) *TodoCreate {
+// SetInput applies the change-set in the CreateTaskInput on the TaskCreate builder.
+func (c *TaskCreate) SetInput(i CreateTaskInput) *TaskCreate {
 	i.Mutate(c.Mutation())
 	return c
 }

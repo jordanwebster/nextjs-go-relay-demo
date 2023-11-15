@@ -3,7 +3,7 @@ import { graphql } from "relay-runtime";
 import { TaskFragment$key } from "../../__generated__/TaskFragment.graphql";
 
 const TaskFragment = graphql`
-  fragment TaskFragment on Todo {
+  fragment TaskFragment on Task {
     id
     text
     status

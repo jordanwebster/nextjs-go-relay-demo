@@ -4,11 +4,11 @@ package enttest
 
 import (
 	"context"
-	"todo/go/ent"
+	"task/go/ent"
 	// required by schema hooks.
-	_ "todo/go/ent/runtime"
+	_ "task/go/ent/runtime"
 
-	"todo/go/ent/migrate"
+	"task/go/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

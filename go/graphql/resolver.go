@@ -1,8 +1,8 @@
 package graphql
 
 import (
-	"todo/go/ent"
-	"todo/go/graphql/generated"
+	"task/go/ent"
+	"task/go/graphql/generated"
 
 	"github.com/99designs/gqlgen/graphql"
 )

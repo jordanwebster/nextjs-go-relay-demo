@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strconv"
 	"sync/atomic"
-	todo "todo/go"
-	"todo/go/ent"
+	task "task/go"
+	"task/go/ent"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -18,21 +18,21 @@ import (
 // region    ************************** generated!.gotpl **************************
 
 type MutationResolver interface {
-	CreateTodo(ctx context.Context, input ent.CreateTodoInput) (*ent.Todo, error)
-	DeleteTodo(ctx context.Context, id int) (*todo.DeletedTodoID, error)
+	CreateTask(ctx context.Context, input ent.CreateTaskInput) (*ent.Task, error)
+	DeleteTask(ctx context.Context, id int) (*task.DeletedTaskID, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 ent.CreateTodoInput
+	var arg0 ent.CreateTaskInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateTodoInput2todoᚋgoᚋentᚐCreateTodoInput(ctx, tmp)
+		arg0, err = ec.unmarshalNCreateTaskInput2taskᚋgoᚋentᚐCreateTaskInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -41,7 +41,7 @@ func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int
@@ -64,8 +64,8 @@ func (ec *executionContext) field_Mutation_deleteTodo_args(ctx context.Context, 
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _DeletedTodoId_id(ctx context.Context, field graphql.CollectedField, obj *todo.DeletedTodoID) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeletedTodoId_id(ctx, field)
+func (ec *executionContext) _DeletedTaskId_id(ctx context.Context, field graphql.CollectedField, obj *task.DeletedTaskID) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeletedTaskId_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -95,9 +95,9 @@ func (ec *executionContext) _DeletedTodoId_id(ctx context.Context, field graphql
 	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DeletedTodoId_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DeletedTaskId_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "DeletedTodoId",
+		Object:     "DeletedTaskId",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -108,8 +108,8 @@ func (ec *executionContext) fieldContext_DeletedTodoId_id(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createTodo(ctx, field)
+func (ec *executionContext) _Mutation_createTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createTask(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -122,7 +122,7 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateTodo(rctx, fc.Args["input"].(ent.CreateTodoInput))
+		return ec.resolvers.Mutation().CreateTask(rctx, fc.Args["input"].(ent.CreateTaskInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -131,12 +131,12 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*ent.Todo)
+	res := resTmp.(*ent.Task)
 	fc.Result = res
-	return ec.marshalOTodo2ᚖtodoᚋgoᚋentᚐTodo(ctx, field.Selections, res)
+	return ec.marshalOTask2ᚖtaskᚋgoᚋentᚐTask(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createTask(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -145,21 +145,21 @@ func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Todo_id(ctx, field)
+				return ec.fieldContext_Task_id(ctx, field)
 			case "text":
-				return ec.fieldContext_Todo_text(ctx, field)
+				return ec.fieldContext_Task_text(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Todo_createdAt(ctx, field)
+				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "status":
-				return ec.fieldContext_Todo_status(ctx, field)
+				return ec.fieldContext_Task_status(ctx, field)
 			case "priority":
-				return ec.fieldContext_Todo_priority(ctx, field)
+				return ec.fieldContext_Task_priority(ctx, field)
 			case "parent":
-				return ec.fieldContext_Todo_parent(ctx, field)
+				return ec.fieldContext_Task_parent(ctx, field)
 			case "children":
-				return ec.fieldContext_Todo_children(ctx, field)
+				return ec.fieldContext_Task_children(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
 	}
 	defer func() {
@@ -169,15 +169,15 @@ func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createTodo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createTask_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteTodo(ctx, field)
+func (ec *executionContext) _Mutation_deleteTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteTask(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -190,7 +190,7 @@ func (ec *executionContext) _Mutation_deleteTodo(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteTodo(rctx, fc.Args["id"].(int))
+		return ec.resolvers.Mutation().DeleteTask(rctx, fc.Args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -199,12 +199,12 @@ func (ec *executionContext) _Mutation_deleteTodo(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*todo.DeletedTodoID)
+	res := resTmp.(*task.DeletedTaskID)
 	fc.Result = res
-	return ec.marshalODeletedTodoId2ᚖtodoᚋgoᚐDeletedTodoID(ctx, field.Selections, res)
+	return ec.marshalODeletedTaskId2ᚖtaskᚋgoᚐDeletedTaskID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_deleteTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_deleteTask(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -213,9 +213,9 @@ func (ec *executionContext) fieldContext_Mutation_deleteTodo(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_DeletedTodoId_id(ctx, field)
+				return ec.fieldContext_DeletedTaskId_id(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type DeletedTodoId", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type DeletedTaskId", field.Name)
 		},
 	}
 	defer func() {
@@ -225,7 +225,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteTodo(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteTodo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_deleteTask_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -244,19 +244,19 @@ func (ec *executionContext) fieldContext_Mutation_deleteTodo(ctx context.Context
 
 // region    **************************** object.gotpl ****************************
 
-var deletedTodoIdImplementors = []string{"DeletedTodoId"}
+var deletedTaskIdImplementors = []string{"DeletedTaskId"}
 
-func (ec *executionContext) _DeletedTodoId(ctx context.Context, sel ast.SelectionSet, obj *todo.DeletedTodoID) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, deletedTodoIdImplementors)
+func (ec *executionContext) _DeletedTaskId(ctx context.Context, sel ast.SelectionSet, obj *task.DeletedTaskID) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deletedTaskIdImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("DeletedTodoId")
+			out.Values[i] = graphql.MarshalString("DeletedTaskId")
 		case "id":
-			out.Values[i] = ec._DeletedTodoId_id(ctx, field, obj)
+			out.Values[i] = ec._DeletedTaskId_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -302,13 +302,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createTodo":
+		case "createTask":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createTodo(ctx, field)
+				return ec._Mutation_createTask(ctx, field)
 			})
-		case "deleteTodo":
+		case "deleteTask":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteTodo(ctx, field)
+				return ec._Mutation_deleteTask(ctx, field)
 			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -337,11 +337,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalODeletedTodoId2ᚖtodoᚋgoᚐDeletedTodoID(ctx context.Context, sel ast.SelectionSet, v *todo.DeletedTodoID) graphql.Marshaler {
+func (ec *executionContext) marshalODeletedTaskId2ᚖtaskᚋgoᚐDeletedTaskID(ctx context.Context, sel ast.SelectionSet, v *task.DeletedTaskID) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._DeletedTodoId(ctx, sel, v)
+	return ec._DeletedTaskId(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

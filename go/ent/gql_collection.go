@@ -6,7 +6,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"todo/go/ent/todo"
+	"task/go/ent/task"
 
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent/dialect/sql"
@@ -14,7 +14,7 @@ import (
 )
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (t *TodoQuery) CollectFields(ctx context.Context, satisfies ...string) (*TodoQuery, error) {
+func (t *TaskQuery) CollectFields(ctx context.Context, satisfies ...string) (*TaskQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
 		return t, nil
@@ -25,12 +25,12 @@ func (t *TodoQuery) CollectFields(ctx context.Context, satisfies ...string) (*To
 	return t, nil
 }
 
-func (t *TodoQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (t *TaskQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
-		fieldSeen      = make(map[string]struct{}, len(todo.Columns))
-		selectedFields = []string{todo.FieldID}
+		fieldSeen      = make(map[string]struct{}, len(task.Columns))
+		selectedFields = []string{task.FieldID}
 	)
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
@@ -38,9 +38,9 @@ func (t *TodoQuery) collectField(ctx context.Context, opCtx *graphql.OperationCo
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&TodoClient{config: t.config}).Query()
+				query = (&TaskClient{config: t.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, mayAddCondition(satisfies, todoImplementors)...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, mayAddCondition(satisfies, taskImplementors)...); err != nil {
 				return err
 			}
 			t.withParent = query
@@ -48,13 +48,13 @@ func (t *TodoQuery) collectField(ctx context.Context, opCtx *graphql.OperationCo
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&TodoClient{config: t.config}).Query()
+				query = (&TaskClient{config: t.config}).Query()
 			)
-			args := newTodoPaginateArgs(fieldArgs(ctx, nil, path...))
+			args := newTaskPaginateArgs(fieldArgs(ctx, nil, path...))
 			if err := validateFirstLast(args.first, args.last); err != nil {
 				return fmt.Errorf("validate first and last in path %q: %w", path, err)
 			}
-			pager, err := newTodoPager(args.opts, args.last != nil)
+			pager, err := newTaskPager(args.opts, args.last != nil)
 			if err != nil {
 				return fmt.Errorf("create new pager in path %q: %w", path, err)
 			}
@@ -66,19 +66,19 @@ func (t *TodoQuery) collectField(ctx context.Context, opCtx *graphql.OperationCo
 				hasPagination := args.after != nil || args.first != nil || args.before != nil || args.last != nil
 				if hasPagination || ignoredEdges {
 					query := query.Clone()
-					t.loadTotal = append(t.loadTotal, func(ctx context.Context, nodes []*Todo) error {
+					t.loadTotal = append(t.loadTotal, func(ctx context.Context, nodes []*Task) error {
 						ids := make([]driver.Value, len(nodes))
 						for i := range nodes {
 							ids[i] = nodes[i].ID
 						}
 						var v []struct {
-							NodeID int `sql:"todo_children"`
+							NodeID int `sql:"task_children"`
 							Count  int `sql:"count"`
 						}
 						query.Where(func(s *sql.Selector) {
-							s.Where(sql.InValues(s.C(todo.ChildrenColumn), ids...))
+							s.Where(sql.InValues(s.C(task.ChildrenColumn), ids...))
 						})
-						if err := query.GroupBy(todo.ChildrenColumn).Aggregate(Count()).Scan(ctx, &v); err != nil {
+						if err := query.GroupBy(task.ChildrenColumn).Aggregate(Count()).Scan(ctx, &v); err != nil {
 							return err
 						}
 						m := make(map[int]int, len(v))
@@ -95,7 +95,7 @@ func (t *TodoQuery) collectField(ctx context.Context, opCtx *graphql.OperationCo
 						return nil
 					})
 				} else {
-					t.loadTotal = append(t.loadTotal, func(_ context.Context, nodes []*Todo) error {
+					t.loadTotal = append(t.loadTotal, func(_ context.Context, nodes []*Task) error {
 						for i := range nodes {
 							n := len(nodes[i].Edges.Children)
 							if nodes[i].Edges.totalCount[1] == nil {
@@ -115,38 +115,38 @@ func (t *TodoQuery) collectField(ctx context.Context, opCtx *graphql.OperationCo
 			}
 			path = append(path, edgesField, nodeField)
 			if field := collectedField(ctx, path...); field != nil {
-				if err := query.collectField(ctx, opCtx, *field, path, mayAddCondition(satisfies, todoImplementors)...); err != nil {
+				if err := query.collectField(ctx, opCtx, *field, path, mayAddCondition(satisfies, taskImplementors)...); err != nil {
 					return err
 				}
 			}
 			if limit := paginateLimit(args.first, args.last); limit > 0 {
-				modify := limitRows(todo.ChildrenColumn, limit, pager.orderExpr(query))
+				modify := limitRows(task.ChildrenColumn, limit, pager.orderExpr(query))
 				query.modifiers = append(query.modifiers, modify)
 			} else {
 				query = pager.applyOrder(query)
 			}
-			t.WithNamedChildren(alias, func(wq *TodoQuery) {
+			t.WithNamedChildren(alias, func(wq *TaskQuery) {
 				*wq = *query
 			})
 		case "text":
-			if _, ok := fieldSeen[todo.FieldText]; !ok {
-				selectedFields = append(selectedFields, todo.FieldText)
-				fieldSeen[todo.FieldText] = struct{}{}
+			if _, ok := fieldSeen[task.FieldText]; !ok {
+				selectedFields = append(selectedFields, task.FieldText)
+				fieldSeen[task.FieldText] = struct{}{}
 			}
 		case "createdAt":
-			if _, ok := fieldSeen[todo.FieldCreatedAt]; !ok {
-				selectedFields = append(selectedFields, todo.FieldCreatedAt)
-				fieldSeen[todo.FieldCreatedAt] = struct{}{}
+			if _, ok := fieldSeen[task.FieldCreatedAt]; !ok {
+				selectedFields = append(selectedFields, task.FieldCreatedAt)
+				fieldSeen[task.FieldCreatedAt] = struct{}{}
 			}
 		case "status":
-			if _, ok := fieldSeen[todo.FieldStatus]; !ok {
-				selectedFields = append(selectedFields, todo.FieldStatus)
-				fieldSeen[todo.FieldStatus] = struct{}{}
+			if _, ok := fieldSeen[task.FieldStatus]; !ok {
+				selectedFields = append(selectedFields, task.FieldStatus)
+				fieldSeen[task.FieldStatus] = struct{}{}
 			}
 		case "priority":
-			if _, ok := fieldSeen[todo.FieldPriority]; !ok {
-				selectedFields = append(selectedFields, todo.FieldPriority)
-				fieldSeen[todo.FieldPriority] = struct{}{}
+			if _, ok := fieldSeen[task.FieldPriority]; !ok {
+				selectedFields = append(selectedFields, task.FieldPriority)
+				fieldSeen[task.FieldPriority] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -160,14 +160,14 @@ func (t *TodoQuery) collectField(ctx context.Context, opCtx *graphql.OperationCo
 	return nil
 }
 
-type todoPaginateArgs struct {
+type taskPaginateArgs struct {
 	first, last   *int
 	after, before *Cursor
-	opts          []TodoPaginateOption
+	opts          []TaskPaginateOption
 }
 
-func newTodoPaginateArgs(rv map[string]any) *todoPaginateArgs {
-	args := &todoPaginateArgs{}
+func newTaskPaginateArgs(rv map[string]any) *taskPaginateArgs {
+	args := &taskPaginateArgs{}
 	if rv == nil {
 		return args
 	}
@@ -185,10 +185,10 @@ func newTodoPaginateArgs(rv map[string]any) *todoPaginateArgs {
 	}
 	if v, ok := rv[orderByField]; ok {
 		switch v := v.(type) {
-		case []*TodoOrder:
-			args.opts = append(args.opts, WithTodoOrder(v))
+		case []*TaskOrder:
+			args.opts = append(args.opts, WithTaskOrder(v))
 		case []any:
-			var orders []*TodoOrder
+			var orders []*TaskOrder
 			for i := range v {
 				mv, ok := v[i].(map[string]any)
 				if !ok {
@@ -196,7 +196,7 @@ func newTodoPaginateArgs(rv map[string]any) *todoPaginateArgs {
 				}
 				var (
 					err1, err2 error
-					order      = &TodoOrder{Field: &TodoOrderField{}, Direction: entgql.OrderDirectionAsc}
+					order      = &TaskOrder{Field: &TaskOrderField{}, Direction: entgql.OrderDirectionAsc}
 				)
 				if d, ok := mv[directionField]; ok {
 					err1 = order.Direction.UnmarshalGQL(d)
@@ -208,7 +208,7 @@ func newTodoPaginateArgs(rv map[string]any) *todoPaginateArgs {
 					orders = append(orders, order)
 				}
 			}
-			args.opts = append(args.opts, WithTodoOrder(orders))
+			args.opts = append(args.opts, WithTaskOrder(orders))
 		}
 	}
 	return args

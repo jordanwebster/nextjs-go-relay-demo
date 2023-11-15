@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"log"
-	"todo/go/ent"
+	"task/go/ent"
 
 	"entgo.io/ent/dialect"
 

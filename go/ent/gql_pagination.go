@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"todo/go/ent/todo"
+	"task/go/ent/task"
 
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
@@ -98,20 +98,20 @@ func paginateLimit(first, last *int) int {
 	return limit
 }
 
-// TodoEdge is the edge representation of Todo.
-type TodoEdge struct {
-	Node   *Todo  `json:"node"`
+// TaskEdge is the edge representation of Task.
+type TaskEdge struct {
+	Node   *Task  `json:"node"`
 	Cursor Cursor `json:"cursor"`
 }
 
-// TodoConnection is the connection containing edges to Todo.
-type TodoConnection struct {
-	Edges      []*TodoEdge `json:"edges"`
+// TaskConnection is the connection containing edges to Task.
+type TaskConnection struct {
+	Edges      []*TaskEdge `json:"edges"`
 	PageInfo   PageInfo    `json:"pageInfo"`
 	TotalCount int         `json:"totalCount"`
 }
 
-func (c *TodoConnection) build(nodes []*Todo, pager *todoPager, after *Cursor, first *int, before *Cursor, last *int) {
+func (c *TaskConnection) build(nodes []*Task, pager *taskPager, after *Cursor, first *int, before *Cursor, last *int) {
 	c.PageInfo.HasNextPage = before != nil
 	c.PageInfo.HasPreviousPage = after != nil
 	if first != nil && *first+1 == len(nodes) {
@@ -121,21 +121,21 @@ func (c *TodoConnection) build(nodes []*Todo, pager *todoPager, after *Cursor, f
 		c.PageInfo.HasPreviousPage = true
 		nodes = nodes[:len(nodes)-1]
 	}
-	var nodeAt func(int) *Todo
+	var nodeAt func(int) *Task
 	if last != nil {
 		n := len(nodes) - 1
-		nodeAt = func(i int) *Todo {
+		nodeAt = func(i int) *Task {
 			return nodes[n-i]
 		}
 	} else {
-		nodeAt = func(i int) *Todo {
+		nodeAt = func(i int) *Task {
 			return nodes[i]
 		}
 	}
-	c.Edges = make([]*TodoEdge, len(nodes))
+	c.Edges = make([]*TaskEdge, len(nodes))
 	for i := range nodes {
 		node := nodeAt(i)
-		c.Edges[i] = &TodoEdge{
+		c.Edges[i] = &TaskEdge{
 			Node:   node,
 			Cursor: pager.toCursor(node),
 		}
@@ -149,12 +149,12 @@ func (c *TodoConnection) build(nodes []*Todo, pager *todoPager, after *Cursor, f
 	}
 }
 
-// TodoPaginateOption enables pagination customization.
-type TodoPaginateOption func(*todoPager) error
+// TaskPaginateOption enables pagination customization.
+type TaskPaginateOption func(*taskPager) error
 
-// WithTodoOrder configures pagination ordering.
-func WithTodoOrder(order []*TodoOrder) TodoPaginateOption {
-	return func(pager *todoPager) error {
+// WithTaskOrder configures pagination ordering.
+func WithTaskOrder(order []*TaskOrder) TaskPaginateOption {
+	return func(pager *taskPager) error {
 		for _, o := range order {
 			if err := o.Direction.Validate(); err != nil {
 				return err
@@ -165,25 +165,25 @@ func WithTodoOrder(order []*TodoOrder) TodoPaginateOption {
 	}
 }
 
-// WithTodoFilter configures pagination filter.
-func WithTodoFilter(filter func(*TodoQuery) (*TodoQuery, error)) TodoPaginateOption {
-	return func(pager *todoPager) error {
+// WithTaskFilter configures pagination filter.
+func WithTaskFilter(filter func(*TaskQuery) (*TaskQuery, error)) TaskPaginateOption {
+	return func(pager *taskPager) error {
 		if filter == nil {
-			return errors.New("TodoQuery filter cannot be nil")
+			return errors.New("TaskQuery filter cannot be nil")
 		}
 		pager.filter = filter
 		return nil
 	}
 }
 
-type todoPager struct {
+type taskPager struct {
 	reverse bool
-	order   []*TodoOrder
-	filter  func(*TodoQuery) (*TodoQuery, error)
+	order   []*TaskOrder
+	filter  func(*TaskQuery) (*TaskQuery, error)
 }
 
-func newTodoPager(opts []TodoPaginateOption, reverse bool) (*todoPager, error) {
-	pager := &todoPager{reverse: reverse}
+func newTaskPager(opts []TaskPaginateOption, reverse bool) (*taskPager, error) {
+	pager := &taskPager{reverse: reverse}
 	for _, opt := range opts {
 		if err := opt(pager); err != nil {
 			return nil, err
@@ -197,14 +197,14 @@ func newTodoPager(opts []TodoPaginateOption, reverse bool) (*todoPager, error) {
 	return pager, nil
 }
 
-func (p *todoPager) applyFilter(query *TodoQuery) (*TodoQuery, error) {
+func (p *taskPager) applyFilter(query *TaskQuery) (*TaskQuery, error) {
 	if p.filter != nil {
 		return p.filter(query)
 	}
 	return query, nil
 }
 
-func (p *todoPager) toCursor(t *Todo) Cursor {
+func (p *taskPager) toCursor(t *Task) Cursor {
 	cs := make([]any, 0, len(p.order))
 	for _, po := range p.order {
 		cs = append(cs, po.Field.toCursor(t).Value)
@@ -212,7 +212,7 @@ func (p *todoPager) toCursor(t *Todo) Cursor {
 	return Cursor{ID: t.ID, Value: cs}
 }
 
-func (p *todoPager) applyCursors(query *TodoQuery, after, before *Cursor) (*TodoQuery, error) {
+func (p *taskPager) applyCursors(query *TaskQuery, after, before *Cursor) (*TaskQuery, error) {
 	idDirection := entgql.OrderDirectionAsc
 	if p.reverse {
 		idDirection = entgql.OrderDirectionDesc
@@ -227,7 +227,7 @@ func (p *todoPager) applyCursors(query *TodoQuery, after, before *Cursor) (*Todo
 		directions = append(directions, direction)
 	}
 	predicates, err := entgql.MultiCursorsPredicate(after, before, &entgql.MultiCursorsOptions{
-		FieldID:     DefaultTodoOrder.Field.column,
+		FieldID:     DefaultTaskOrder.Field.column,
 		DirectionID: idDirection,
 		Fields:      fields,
 		Directions:  directions,
@@ -241,7 +241,7 @@ func (p *todoPager) applyCursors(query *TodoQuery, after, before *Cursor) (*Todo
 	return query, nil
 }
 
-func (p *todoPager) applyOrder(query *TodoQuery) *TodoQuery {
+func (p *taskPager) applyOrder(query *TaskQuery) *TaskQuery {
 	var defaultOrdered bool
 	for _, o := range p.order {
 		direction := o.Direction
@@ -249,11 +249,11 @@ func (p *todoPager) applyOrder(query *TodoQuery) *TodoQuery {
 			direction = direction.Reverse()
 		}
 		query = query.Order(o.Field.toTerm(direction.OrderTermOption()))
-		if o.Field.column == DefaultTodoOrder.Field.column {
+		if o.Field.column == DefaultTaskOrder.Field.column {
 			defaultOrdered = true
 		}
 		switch o.Field.column {
-		case TodoOrderFieldChildrenCount.column:
+		case TaskOrderFieldChildrenCount.column:
 		default:
 			if len(query.ctx.Fields) > 0 {
 				query.ctx.AppendFieldOnce(o.Field.column)
@@ -265,15 +265,15 @@ func (p *todoPager) applyOrder(query *TodoQuery) *TodoQuery {
 		if p.reverse {
 			direction = direction.Reverse()
 		}
-		query = query.Order(DefaultTodoOrder.Field.toTerm(direction.OrderTermOption()))
+		query = query.Order(DefaultTaskOrder.Field.toTerm(direction.OrderTermOption()))
 	}
 	return query
 }
 
-func (p *todoPager) orderExpr(query *TodoQuery) sql.Querier {
+func (p *taskPager) orderExpr(query *TaskQuery) sql.Querier {
 	for _, o := range p.order {
 		switch o.Field.column {
-		case TodoOrderFieldChildrenCount.column:
+		case TaskOrderFieldChildrenCount.column:
 			direction := o.Direction
 			if p.reverse {
 				direction = direction.Reverse()
@@ -298,26 +298,26 @@ func (p *todoPager) orderExpr(query *TodoQuery) sql.Querier {
 		if p.reverse {
 			direction = direction.Reverse()
 		}
-		b.Ident(DefaultTodoOrder.Field.column).Pad().WriteString(string(direction))
+		b.Ident(DefaultTaskOrder.Field.column).Pad().WriteString(string(direction))
 	})
 }
 
-// Paginate executes the query and returns a relay based cursor connection to Todo.
-func (t *TodoQuery) Paginate(
+// Paginate executes the query and returns a relay based cursor connection to Task.
+func (t *TaskQuery) Paginate(
 	ctx context.Context, after *Cursor, first *int,
-	before *Cursor, last *int, opts ...TodoPaginateOption,
-) (*TodoConnection, error) {
+	before *Cursor, last *int, opts ...TaskPaginateOption,
+) (*TaskConnection, error) {
 	if err := validateFirstLast(first, last); err != nil {
 		return nil, err
 	}
-	pager, err := newTodoPager(opts, last != nil)
+	pager, err := newTaskPager(opts, last != nil)
 	if err != nil {
 		return nil, err
 	}
 	if t, err = pager.applyFilter(t); err != nil {
 		return nil, err
 	}
-	conn := &TodoConnection{Edges: []*TodoEdge{}}
+	conn := &TaskConnection{Edges: []*TaskEdge{}}
 	ignoredEdges := !hasCollectedField(ctx, edgesField)
 	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
 		hasPagination := after != nil || first != nil || before != nil || last != nil
@@ -355,74 +355,74 @@ func (t *TodoQuery) Paginate(
 }
 
 var (
-	// TodoOrderFieldText orders Todo by text.
-	TodoOrderFieldText = &TodoOrderField{
-		Value: func(t *Todo) (ent.Value, error) {
+	// TaskOrderFieldText orders Task by text.
+	TaskOrderFieldText = &TaskOrderField{
+		Value: func(t *Task) (ent.Value, error) {
 			return t.Text, nil
 		},
-		column: todo.FieldText,
-		toTerm: todo.ByText,
-		toCursor: func(t *Todo) Cursor {
+		column: task.FieldText,
+		toTerm: task.ByText,
+		toCursor: func(t *Task) Cursor {
 			return Cursor{
 				ID:    t.ID,
 				Value: t.Text,
 			}
 		},
 	}
-	// TodoOrderFieldCreatedAt orders Todo by created_at.
-	TodoOrderFieldCreatedAt = &TodoOrderField{
-		Value: func(t *Todo) (ent.Value, error) {
+	// TaskOrderFieldCreatedAt orders Task by created_at.
+	TaskOrderFieldCreatedAt = &TaskOrderField{
+		Value: func(t *Task) (ent.Value, error) {
 			return t.CreatedAt, nil
 		},
-		column: todo.FieldCreatedAt,
-		toTerm: todo.ByCreatedAt,
-		toCursor: func(t *Todo) Cursor {
+		column: task.FieldCreatedAt,
+		toTerm: task.ByCreatedAt,
+		toCursor: func(t *Task) Cursor {
 			return Cursor{
 				ID:    t.ID,
 				Value: t.CreatedAt,
 			}
 		},
 	}
-	// TodoOrderFieldStatus orders Todo by status.
-	TodoOrderFieldStatus = &TodoOrderField{
-		Value: func(t *Todo) (ent.Value, error) {
+	// TaskOrderFieldStatus orders Task by status.
+	TaskOrderFieldStatus = &TaskOrderField{
+		Value: func(t *Task) (ent.Value, error) {
 			return t.Status, nil
 		},
-		column: todo.FieldStatus,
-		toTerm: todo.ByStatus,
-		toCursor: func(t *Todo) Cursor {
+		column: task.FieldStatus,
+		toTerm: task.ByStatus,
+		toCursor: func(t *Task) Cursor {
 			return Cursor{
 				ID:    t.ID,
 				Value: t.Status,
 			}
 		},
 	}
-	// TodoOrderFieldPriority orders Todo by priority.
-	TodoOrderFieldPriority = &TodoOrderField{
-		Value: func(t *Todo) (ent.Value, error) {
+	// TaskOrderFieldPriority orders Task by priority.
+	TaskOrderFieldPriority = &TaskOrderField{
+		Value: func(t *Task) (ent.Value, error) {
 			return t.Priority, nil
 		},
-		column: todo.FieldPriority,
-		toTerm: todo.ByPriority,
-		toCursor: func(t *Todo) Cursor {
+		column: task.FieldPriority,
+		toTerm: task.ByPriority,
+		toCursor: func(t *Task) Cursor {
 			return Cursor{
 				ID:    t.ID,
 				Value: t.Priority,
 			}
 		},
 	}
-	// TodoOrderFieldChildrenCount orders by CHILDREN_COUNT.
-	TodoOrderFieldChildrenCount = &TodoOrderField{
-		Value: func(t *Todo) (ent.Value, error) {
+	// TaskOrderFieldChildrenCount orders by CHILDREN_COUNT.
+	TaskOrderFieldChildrenCount = &TaskOrderField{
+		Value: func(t *Task) (ent.Value, error) {
 			return t.Value("children_count")
 		},
 		column: "children_count",
-		toTerm: func(opts ...sql.OrderTermOption) todo.OrderOption {
-			return todo.ByChildrenCount(
+		toTerm: func(opts ...sql.OrderTermOption) task.OrderOption {
+			return task.ByChildrenCount(
 				append(opts, sql.OrderSelectAs("children_count"))...,
 			)
 		},
-		toCursor: func(t *Todo) Cursor {
+		toCursor: func(t *Task) Cursor {
 			cv, _ := t.Value("children_count")
 			return Cursor{
 				ID:    t.ID,
@@ -433,87 +433,87 @@ var (
 )
 
 // String implement fmt.Stringer interface.
-func (f TodoOrderField) String() string {
+func (f TaskOrderField) String() string {
 	var str string
 	switch f.column {
-	case TodoOrderFieldText.column:
+	case TaskOrderFieldText.column:
 		str = "TEXT"
-	case TodoOrderFieldCreatedAt.column:
+	case TaskOrderFieldCreatedAt.column:
 		str = "CREATED_AT"
-	case TodoOrderFieldStatus.column:
+	case TaskOrderFieldStatus.column:
 		str = "STATUS"
-	case TodoOrderFieldPriority.column:
+	case TaskOrderFieldPriority.column:
 		str = "PRIORITY"
-	case TodoOrderFieldChildrenCount.column:
+	case TaskOrderFieldChildrenCount.column:
 		str = "CHILDREN_COUNT"
 	}
 	return str
 }
 
 // MarshalGQL implements graphql.Marshaler interface.
-func (f TodoOrderField) MarshalGQL(w io.Writer) {
+func (f TaskOrderField) MarshalGQL(w io.Writer) {
 	io.WriteString(w, strconv.Quote(f.String()))
 }
 
 // UnmarshalGQL implements graphql.Unmarshaler interface.
-func (f *TodoOrderField) UnmarshalGQL(v interface{}) error {
+func (f *TaskOrderField) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
-		return fmt.Errorf("TodoOrderField %T must be a string", v)
+		return fmt.Errorf("TaskOrderField %T must be a string", v)
 	}
 	switch str {
 	case "TEXT":
-		*f = *TodoOrderFieldText
+		*f = *TaskOrderFieldText
 	case "CREATED_AT":
-		*f = *TodoOrderFieldCreatedAt
+		*f = *TaskOrderFieldCreatedAt
 	case "STATUS":
-		*f = *TodoOrderFieldStatus
+		*f = *TaskOrderFieldStatus
 	case "PRIORITY":
-		*f = *TodoOrderFieldPriority
+		*f = *TaskOrderFieldPriority
 	case "CHILDREN_COUNT":
-		*f = *TodoOrderFieldChildrenCount
+		*f = *TaskOrderFieldChildrenCount
 	default:
-		return fmt.Errorf("%s is not a valid TodoOrderField", str)
+		return fmt.Errorf("%s is not a valid TaskOrderField", str)
 	}
 	return nil
 }
 
-// TodoOrderField defines the ordering field of Todo.
-type TodoOrderField struct {
-	// Value extracts the ordering value from the given Todo.
-	Value    func(*Todo) (ent.Value, error)
+// TaskOrderField defines the ordering field of Task.
+type TaskOrderField struct {
+	// Value extracts the ordering value from the given Task.
+	Value    func(*Task) (ent.Value, error)
 	column   string // field or computed.
-	toTerm   func(...sql.OrderTermOption) todo.OrderOption
-	toCursor func(*Todo) Cursor
+	toTerm   func(...sql.OrderTermOption) task.OrderOption
+	toCursor func(*Task) Cursor
 }
 
-// TodoOrder defines the ordering of Todo.
-type TodoOrder struct {
+// TaskOrder defines the ordering of Task.
+type TaskOrder struct {
 	Direction OrderDirection  `json:"direction"`
-	Field     *TodoOrderField `json:"field"`
+	Field     *TaskOrderField `json:"field"`
 }
 
-// DefaultTodoOrder is the default ordering of Todo.
-var DefaultTodoOrder = &TodoOrder{
+// DefaultTaskOrder is the default ordering of Task.
+var DefaultTaskOrder = &TaskOrder{
 	Direction: entgql.OrderDirectionAsc,
-	Field: &TodoOrderField{
-		Value: func(t *Todo) (ent.Value, error) {
+	Field: &TaskOrderField{
+		Value: func(t *Task) (ent.Value, error) {
 			return t.ID, nil
 		},
-		column: todo.FieldID,
-		toTerm: todo.ByID,
-		toCursor: func(t *Todo) Cursor {
+		column: task.FieldID,
+		toTerm: task.ByID,
+		toCursor: func(t *Task) Cursor {
 			return Cursor{ID: t.ID}
 		},
 	},
 }
 
-// ToEdge converts Todo into TodoEdge.
-func (t *Todo) ToEdge(order *TodoOrder) *TodoEdge {
+// ToEdge converts Task into TaskEdge.
+func (t *Task) ToEdge(order *TaskOrder) *TaskEdge {
 	if order == nil {
-		order = DefaultTodoOrder
+		order = DefaultTaskOrder
 	}
-	return &TodoEdge{
+	return &TaskEdge{
 		Node:   t,
 		Cursor: order.Field.toCursor(t),
 	}
