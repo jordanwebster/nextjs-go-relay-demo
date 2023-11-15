@@ -6,6 +6,7 @@ package graphql
 
 import (
 	"context"
+	todo "todo/go"
 	"todo/go/ent"
 	"todo/go/graphql/generated"
 )
@@ -16,9 +17,11 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input ent.CreateTodoI
 }
 
 // DeleteTodo is the resolver for the deleteTodo field.
-func (r *mutationResolver) DeleteTodo(ctx context.Context, id int) (*bool, error) {
-	b := true
-	return &b, r.client.Todo.DeleteOneID(id).Exec(ctx)
+func (r *mutationResolver) DeleteTodo(ctx context.Context, id int) (*todo.DeletedTodoID, error) {
+	ret := todo.DeletedTodoID{
+		ID: id,
+	}
+	return &ret, r.client.Todo.DeleteOneID(id).Exec(ctx)
 }
 
 // Mutation returns generated.MutationResolver implementation.

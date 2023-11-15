@@ -13,9 +13,17 @@ const TaskFragment = graphql`
 
 type Props = {
   task: TaskFragment$key;
+  onDeleteTask: (id: string) => void;
 };
 
-export default function Task({ task }: Props) {
+export default function Task({ task, onDeleteTask }: Props) {
   const data = useFragment(TaskFragment, task);
-  return <span>{data.text}</span>;
+  return (
+    <div>
+      <span>{data.text}</span>
+      <button type="button" onClick={() => onDeleteTask(data.id)}>
+        Mark as done
+      </button>
+    </div>
+  );
 }

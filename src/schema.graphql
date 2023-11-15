@@ -38,9 +38,13 @@ https://relay.dev/graphql/connections.htm#sec-Cursor
 """
 scalar Cursor
 
+type DeletedTodoId {
+  id: ID!
+}
+
 type Mutation {
   createTodo(input: CreateTodoInput!): Todo
-  deleteTodo(id: ID!): Boolean
+  deleteTodo(id: ID!): DeletedTodoId
 }
 
 """

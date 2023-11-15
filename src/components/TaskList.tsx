@@ -1,10 +1,4 @@
-import {
-  ChangeEvent,
-  FormEvent,
-  FormEventHandler,
-  useCallback,
-  useState,
-} from "react";
+import { ChangeEvent, FormEvent, useCallback, useState } from "react";
 import { useMutation, usePaginationFragment } from "react-relay";
 import { graphql } from "relay-runtime";
 import { TaskListFragment$key } from "../../__generated__/TaskListFragment.graphql";
@@ -45,6 +39,13 @@ const TaskListAddTaskMutation = graphql`
     }
   }
 `;
+const TaskListDeleteTaskMutation = graphql`
+  mutation TaskListDeleteTaskMutation($connections: [ID!]!, $id: ID!) {
+    deleteTodo(id: $id) {
+      id @deleteEdge(connections: $connections)
+    }
+  }
+`;
 
 type Props = {
   tasks: TaskListFragment$key;
@@ -58,6 +59,9 @@ export default function TaskList({ tasks }: Props) {
   );
   const [addTask, _isAddTaskMutationInFlight] = useMutation(
     TaskListAddTaskMutation,
+  );
+  const [deleteTask, _isDeleteTaskMutationInFlight] = useMutation(
+    TaskListDeleteTaskMutation,
   );
 
   const onChange = useCallback(
@@ -83,6 +87,18 @@ export default function TaskList({ tasks }: Props) {
     [taskTitle, setTaskTitle, addTask, data.todos],
   );
 
+  const onDeleteTask = useCallback(
+    (id: string) => {
+      deleteTask({
+        variables: {
+          id: id,
+          connections: [data.todos.__id],
+        },
+      });
+    },
+    [deleteTask, data.todos],
+  );
+
   return (
     <>
       <form onSubmit={onSubmit}>
@@ -98,7 +114,7 @@ export default function TaskList({ tasks }: Props) {
           (edge) =>
             edge?.node && (
               <li key={edge.node.id}>
-                <Task task={edge.node} />
+                <Task task={edge.node} onDeleteTask={onDeleteTask} />
               </li>
             ),
         )}
