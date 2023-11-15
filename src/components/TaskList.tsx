@@ -1,4 +1,10 @@
-import { useCallback, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  FormEventHandler,
+  useCallback,
+  useState,
+} from "react";
 import { useMutation, usePaginationFragment } from "react-relay";
 import { graphql } from "relay-runtime";
 import { TaskListFragment$key } from "../../__generated__/TaskListFragment.graphql";
@@ -34,7 +40,7 @@ const TaskListAddTaskMutation = graphql`
     $input: CreateTodoInput!
   ) {
     createTodo(input: $input)
-      @appendNode(connections: $connections, edgeTypeName: "TodoEdge") {
+      @prependNode(connections: $connections, edgeTypeName: "TodoEdge") {
       ...TaskFragment
     }
   }
@@ -54,16 +60,15 @@ export default function TaskList({ tasks }: Props) {
     TaskListAddTaskMutation,
   );
 
-  // TODO: Remove any typing
   const onChange = useCallback(
-    (event: any) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       setTaskTitle(event.target.value);
     },
     [setTaskTitle],
   );
 
   const onSubmit = useCallback(
-    (event: any) => {
+    (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       addTask({
         variables: {
@@ -81,7 +86,11 @@ export default function TaskList({ tasks }: Props) {
   return (
     <>
       <form onSubmit={onSubmit}>
-        <input placeholder="Create new task" onChange={onChange} />
+        <input
+          placeholder="Create new task"
+          value={taskTitle}
+          onChange={onChange}
+        />
         <button type="submit">Create</button>
       </form>
       <ul>
