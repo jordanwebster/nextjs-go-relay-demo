@@ -1,5 +1,5 @@
 {
-  "name": "task",
+  "name": "todo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "relay": "relay-compiler --watch",
-    "schema": "get-graphql-schema http://localhost:3000/api/graphql > src/schema.graphql"
+    "schema": "get-graphql-schema $GRAPHQL_ENDPOINT > src/schema.graphql"
   },
   "dependencies": {
     "next": "14.0.2",
