@@ -124,7 +124,7 @@ export default function TaskList({ tasks }: Props) {
         </div>
       </form>
       <ul className="divide-y divide-gray-200 px-4">
-        {data.tasks.edges?.map(
+        {data.tasks?.edges?.map(
           (edge) =>
             edge?.node && (
               <li className="py-4" key={edge.node.id}>
