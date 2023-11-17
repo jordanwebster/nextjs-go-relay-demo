@@ -1,1 +1,1 @@
-![screenshot of demo app](./images/screenshot.png)
+![screen recording of demo app](./media/screenrecording.mov)
