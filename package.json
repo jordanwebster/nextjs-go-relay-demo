@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "relay": "mkdir -p __generated__ && relay-compiler --watch",
-    "schema": "get-graphql-schema $GRAPHQL_ENDPOINT > src/schema.graphql"
+    "schema": "get-graphql-schema $NEXT_PUBLIC_GRAPHQL_ENDPOINT > src/schema.graphql"
   },
   "dependencies": {
     "next": "14.0.2",

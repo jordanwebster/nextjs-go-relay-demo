@@ -6,9 +6,11 @@ import {
   FetchFunction,
 } from "relay-runtime";
 
-const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT;
+const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT;
 if (GRAPHQL_ENDPOINT === undefined) {
-  throw new Error("GRAPHQL_ENDPOINT environment variable is missing");
+  throw new Error(
+    "NEXT_PUBLIC_GRAPHQL_ENDPOINT environment variable is missing",
+  );
 }
 
 const fetchFn: FetchFunction = async (request, variables) => {
