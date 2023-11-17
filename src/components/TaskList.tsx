@@ -100,33 +100,51 @@ export default function TaskList({ tasks }: Props) {
   );
 
   return (
-    <>
-      <form onSubmit={onSubmit}>
-        <input
-          placeholder="Create new task"
-          value={taskTitle}
-          onChange={onChange}
-        />
-        <button type="submit">Create</button>
+    <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden mt-16">
+      <div className="px-4 py-2">
+        <h1 className="text-gray-800 font-bold text-2xl uppercase">
+          To Do List
+        </h1>
+      </div>
+      <form className="w-full max-w-sm mx-auto px-4 py-2" onSubmit={onSubmit}>
+        <div className="flex items-center border-b-2 border-teal-500 py-2">
+          <input
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            placeholder="Add a task"
+            type="text"
+            value={taskTitle}
+            onChange={onChange}
+          />
+          <button
+            className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
+            type="submit"
+          >
+            Add
+          </button>
+        </div>
       </form>
-      <ul>
+      <ul className="divide-y divide-gray-200 px-4">
         {data.tasks.edges?.map(
           (edge) =>
             edge?.node && (
-              <li key={edge.node.id}>
+              <li className="py-4" key={edge.node.id}>
                 <Task task={edge.node} onDeleteTask={onDeleteTask} />
               </li>
             ),
         )}
       </ul>
-      <button
-        type="button"
-        disabled={isLoadingNext || !hasNext}
-        onClick={() => loadNext(5)}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-slate-50 disabled:text-slate-500"
-      >
-        Load More
-      </button>
-    </>
+      {hasNext && (
+        <div className="p-4 flex justify-end">
+          <button
+            type="button"
+            disabled={isLoadingNext || !hasNext}
+            onClick={() => loadNext(5)}
+            className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
+          >
+            Load More
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
