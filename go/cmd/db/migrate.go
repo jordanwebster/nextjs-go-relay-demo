@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"task/go/ent"
 
 	"entgo.io/ent/dialect"
@@ -11,7 +12,12 @@ import (
 )
 
 func main() {
-	client, err := ent.Open(dialect.MySQL, "jlw@/todo")
+	dbUrl, isPresent := os.LookupEnv("DATABASE_URL")
+	if !isPresent {
+		log.Fatalf("Environment variable DATABASE_URL is missing")
+	}
+
+	client, err := ent.Open(dialect.MySQL, dbUrl)
 	if err != nil {
 		log.Fatalf("Failed to open DB: %v", err)
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"task/go/ent"
 	"task/go/graphql"
 
@@ -14,8 +15,13 @@ import (
 )
 
 func main() {
+	dbUrl, isPresent := os.LookupEnv("DATABASE_URL")
+	if !isPresent {
+		log.Fatalf("Environment variable DATABASE_URL is missing")
+	}
+
 	// Create ent.Client and run the schema migration.
-	client, err := ent.Open(dialect.MySQL, "jlw@/todo")
+	client, err := ent.Open(dialect.MySQL, dbUrl)
 	if err != nil {
 		log.Fatalf("Failed to open DB: %v", err)
 	}

@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
+	"os"
 	"task/go/ent"
 	"task/go/graphql"
 
@@ -13,8 +14,12 @@ import (
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Use environment variable for connection string
-	client, err := ent.Open(dialect.MySQL, "jlw@/todo")
+	dbUrl, isPresent := os.LookupEnv("DATABASE_URL")
+	if !isPresent {
+		log.Fatalf("Environment variable DATABASE_URL is missing")
+	}
+
+	client, err := ent.Open(dialect.MySQL, dbUrl)
 	if err != nil {
 		log.Fatalf("Failed to open DB connection %v", err)
 	}
