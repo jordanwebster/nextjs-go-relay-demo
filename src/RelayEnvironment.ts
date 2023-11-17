@@ -6,8 +6,13 @@ import {
   FetchFunction,
 } from "relay-runtime";
 
+const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT;
+if (GRAPHQL_ENDPOINT === undefined) {
+  throw new Error("GRAPHQL_ENDPOINT environment variable is missing");
+}
+
 const fetchFn: FetchFunction = async (request, variables) => {
-  const resp = await fetch(process.env.GRAPHQL_ENDPOINT, {
+  const resp = await fetch(GRAPHQL_ENDPOINT, {
     method: "POST",
     headers: {
       Accept:
