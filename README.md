@@ -1,1 +1,1 @@
-![screen recording of demo app](./media/screenrecording.mov)
+![screen recording of demo app](./media/screenrecording.gif)
