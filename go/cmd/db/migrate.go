@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"task/go/ent"
+	"task/go/ent/migrate"
 
 	"entgo.io/ent/dialect"
 
@@ -25,7 +26,7 @@ func main() {
 
 	ctx := context.Background()
 
-	if err = client.Schema.Create(ctx); err != nil {
+	if err = client.Schema.Create(ctx, migrate.WithForeignKeys(false)); err != nil {
 		log.Fatalf("Failed creating schema resources: %v", err)
 	}
 }
