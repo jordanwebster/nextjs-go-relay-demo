@@ -1,5 +1,3 @@
-Built as part of an exploration of using Go with NextJS on Vercel: https://jordanwebster.com/articles/should-you-use-go-with-nextjs-on-vercel
-
 # NextJS + Go Starter Project
 A basic todo app to kickstart your NextJS 14 (App Router) and Go app, leveraging the ent framework for the data model and relay for data dependencies. It is designed to work out the box with Vercel hosting and serverless functions (providing your configuration, see below), but there is also a playground package you could deploy and run independently if you wanted instead.
 
